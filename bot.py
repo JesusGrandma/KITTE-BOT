@@ -20,12 +20,25 @@ async def on_ready():
 async def ping(ctx):
     await ctx.send("Pong!")
 
-@bot.command(name="help")
+@bot.command(name="help",help="General help command")
 async def help_command(ctx):
-    help_text = "**🎵 Available Commands:**\n\n"
+    embed = discord.Embed(title="🐱 KITTIE-BOT Commands", color=discord.Color.purple())
+    
+    cogs = {}
     for command in bot.commands:
-        help_text += f"`/{command.name}` - {command.help or 'No description'}\n"
-    await ctx.send(help_text)
+        if command.hidden:
+            continue
+        cog_name = command.cog_name or "General"
+        if cog_name not in cogs:
+            cogs[cog_name] = []
+        cogs[cog_name].append(command)
+
+    for cog_name, commands_list in cogs.items():
+        value = "\n".join(f"`/{cmd.name}` - {cmd.help or 'No description'}" for cmd in commands_list)
+        embed.add_field(name=f"🐱 {cog_name}", value=value, inline=False)
+
+    await ctx.send(embed=embed)
+
 
 # Just regular function (not async)
 def load_extensions():
