@@ -1,7 +1,10 @@
+# bot.py
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 import os
+from image_gen import generate_image
+import io
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -20,7 +23,17 @@ async def on_ready():
 async def ping(ctx):
     await ctx.send("Pong!")
 
-@bot.command(name="help",help="General help command")
+@bot.command(name="image", help="Generate an AI image from a prompt")
+async def imagine(ctx, *, prompt):
+    await ctx.send(f"🎨 Generating image for: `{prompt}`...")
+    image_url = generate_image(prompt)
+    
+    if image_url:
+        await ctx.send(image_url)  # Send the image URL to Discord
+    else:
+        await ctx.send("❌ Failed to generate image.")
+
+@bot.command(name="help", help="General help command")
 async def help_command(ctx):
     embed = discord.Embed(title="🐱 KITTIE-BOT Commands", color=discord.Color.purple())
     
@@ -39,11 +52,10 @@ async def help_command(ctx):
 
     await ctx.send(embed=embed)
 
-
 # Just regular function (not async)
 def load_extensions():
     bot.load_extension("music")
-    bot.load_extension("reddit_memes")
+    bot.load_extension("reddit_memes")  # Load the ffxiv.py cog
 
 # Main
 if __name__ == "__main__":
