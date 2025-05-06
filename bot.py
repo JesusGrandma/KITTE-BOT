@@ -30,6 +30,7 @@ async def help_command(ctx):
 # Just regular function (not async)
 def load_extensions():
     bot.load_extension("music")
+    bot.load_extension("reddit_memes")
 
 # Main
 if __name__ == "__main__":
