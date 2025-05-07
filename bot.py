@@ -58,6 +58,25 @@ async def status(ctx):
     await ctx.send(embed=embed)
 
 
+@bot.command(name="info", help="Shows bot creator and helpful links")
+async def info(ctx):
+    embed = discord.Embed(
+        title="About KITTIE",
+        description="Cat bot meow",
+        color=discord.Color.purple()
+    )
+    embed.add_field(name="Creator", value="JesusGrandma", inline=True)
+    embed.add_field(name="Support / GitHub", value="[Click Here](https://github.com/JesusGrandma/KITTE-BOT)", inline=False)
+
+    try:
+        # Try to send it via DM
+        await ctx.author.send(embed=embed)
+        if ctx.guild:  # If used in a server, confirm in channel
+            await ctx.send("I've sent you a DM with the info")
+    except discord.Forbidden:
+        await ctx.send("❌ I couldn't send you a DM. Please check your privacy settings.")
+
+
 @bot.command(name="image", help="Generate an AI image from a prompt")
 async def imagine(ctx, *, prompt):
     await ctx.send(f"🎨 Generating image for: `{prompt}`...")

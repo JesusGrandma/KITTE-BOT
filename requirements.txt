@@ -1,4 +1,5 @@
 discord.py
 python-dotenv
 yt-dlp
-
+openai>=1.0.0
+requests
