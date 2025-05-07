@@ -3,24 +3,24 @@ from discord.ext import commands
 from dotenv import load_dotenv
 import os
 from image_gen import generate_image
+from chatgpt_handler import ask_cat_gpt
 import random
-from openai import OpenAI
 import time
 import platform
+import asyncio
 
 # Load environment variables
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# Setup OpenAI client
-client = OpenAI(api_key=OPENAI_API_KEY)
+if not TOKEN:
+    raise ValueError("DISCORD_TOKEN not found in environment variables")
 
 # Setup Discord bot
 intents = discord.Intents.default()
 intents.message_content = True
 intents.voice_states = True
-intents.members = True  # Needed for welcome messages
+intents.members = True
 
 bot = commands.Bot(command_prefix="/", intents=intents, help_command=None)
 start_time = time.time()
@@ -45,7 +45,7 @@ async def status(ctx):
     uptime_seconds = int(current_time - start_time)
     uptime = time.strftime("%H:%M:%S", time.gmtime(uptime_seconds))
 
-    latency = round(bot.latency * 1000)  # in ms
+    latency = round(bot.latency * 1000)
     server_count = len(bot.guilds)
 
     embed = discord.Embed(title="KITTIE-BOT Status", color=discord.Color.purple())
@@ -56,7 +56,6 @@ async def status(ctx):
     embed.add_field(name="Library", value=f"discord.py {discord.__version__}", inline=True)
 
     await ctx.send(embed=embed)
-
 
 @bot.command(name="info", help="Shows bot creator and helpful links")
 async def info(ctx):
@@ -69,27 +68,39 @@ async def info(ctx):
     embed.add_field(name="Support / GitHub", value="[Click Here](https://github.com/JesusGrandma/KITTE-BOT)", inline=False)
 
     try:
-        # Try to send it via DM
         await ctx.author.send(embed=embed)
-        if ctx.guild:  # If used in a server, confirm in channel
+        if ctx.guild:
             await ctx.send("I've sent you a DM with the info")
     except discord.Forbidden:
         await ctx.send("❌ I couldn't send you a DM. Please check your privacy settings.")
 
-
 @bot.command(name="image", help="Generate an AI image from a prompt")
-async def imagine(ctx, *, prompt):
-    await ctx.send(f"🎨 Generating image for: `{prompt}`...")
+async def image(ctx, *, prompt):
+    await ctx.send(f"Generating image for: `{prompt}`...")
+
     image_url = generate_image(prompt)
-    
+
     if image_url:
-        await ctx.send(image_url)
+        embed = discord.Embed(
+            title="Generated Image",
+            description=f"Prompt: *{prompt}*",
+            color=discord.Color.purple()
+        )
+        embed.set_image(url=image_url)
+        await ctx.send(embed=embed)
     else:
         await ctx.send("❌ Failed to generate image.")
+
 
 @bot.command(name="kittyuh", help="Sends a random cat picture")
 async def cat(ctx):
     folder = "cat-pics"
+    
+    # Check if the folder exists
+    if not os.path.exists(folder):
+        await ctx.send("❌ No cat pics folder found!")
+        return
+
     files = [f for f in os.listdir(folder) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))]
 
     if not files:
@@ -104,76 +115,12 @@ async def cat(ctx):
 
     await ctx.send(f"{chosen_emoji} Here's a random cat for you!", file=discord.File(file_path))
 
-
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
-        
-    # Ignore command messages (those starting with the command prefix)
-    if message.content.startswith("/"):
-        await bot.process_commands(message)
-        return
-
-    content = message.content.lower()
-    cat_words = ["meow", "kitty", "cat", "purr", "treat", "whiskers", "litter", "feline"]
-
-    # Random response if "edbot" is mentioned
-    if "edbot" in content:
-        edbot_responses = [
-            "fuck edbot",
-            "kitte better than edbot",
-            "pffft, Edbot wishes it had whiskers like mine.",
-            "*curls up on Edbot's keyboard and takes a nap*",
-            "Edbot smells like expired tuna.",
-            "I'm the real purr-fessional here, not Edbot"
-        ]
-        if random.random() < 0.75:  # 75% chance to respond to edbot
-            await message.channel.send(random.choice(edbot_responses))
-            return  # 🛑 Stop here so it doesn't send a cat response too
-
-
-    # Random cat-like response
-    chance = 0.05  # 5% base chance
-    if any(word in content for word in cat_words):
-        chance = 0.25  # 25% if cat word mentioned
-
-    if random.random() < chance:
-        cat_responses = [
-            "Meow? ", 
-            "*licks paw*",  
-            "*purrs loudly* ", 
-            "Did you say... tuna? ", 
-            "*knocks cup off table* ", 
-            "*stares at you silently from the corner*"
-        ]
-        await message.channel.send(random.choice(cat_responses))
-
-    await bot.process_commands(message)
-
-
-
-
 @bot.command(name="ask", help="Ask GPT-3.5 a question")
 async def ask(ctx, *, prompt):
-
-
     try:
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": (
-                "You are a cat. You only respond like a cat would. "
-                "You are sassy with your responses, just like a cat. You have an attitude."
-                "Your responses often include 'meow', 'purr', and cat-like sounds. Be sassy and aloof sometimes, like a real cat. You are also very smart and can answer hard questions."
-                )},
-
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=300
-        )
-        answer = response.choices[0].message.content.strip()
-        await ctx.send(f"{answer}")
+        # Run the GPT-3.5 ask function asynchronously
+        answer = await asyncio.to_thread(ask_cat_gpt, prompt)
+        await ctx.send(answer)
     except Exception as e:
         await ctx.send(f"❌ Error: {str(e)}")
 
@@ -195,6 +142,48 @@ async def help_command(ctx):
         embed.add_field(name=f"🐱 {cog_name}", value=value, inline=False)
 
     await ctx.send(embed=embed)
+
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
+        
+    if message.content.startswith("/"):
+        await bot.process_commands(message)
+        return
+
+    content = message.content.lower()
+    cat_words = ["meow", "kitty", "cat", "purr", "treat", "whiskers", "litter", "feline"]
+
+    if "edbot" in content:
+        edbot_responses = [
+            "fuck edbot",
+            "kitte better than edbot",
+            "pffft, Edbot wishes it had whiskers like mine.",
+            "*curls up on Edbot's keyboard and takes a nap*",
+            "Edbot smells like expired tuna.",
+            "I'm the real purr-fessional here, not Edbot"
+        ]
+        if random.random() < 0.75:
+            await message.channel.send(random.choice(edbot_responses))
+            return
+
+    chance = 0.05
+    if any(word in content for word in cat_words):
+        chance = 0.25
+
+    if random.random() < chance:
+        cat_responses = [
+            "Meow? ", 
+            "*licks paw*",  
+            "*purrs loudly* ", 
+            "Did you say... tuna? ", 
+            "*knocks cup off table* ", 
+            "*stares at you silently from the corner*"
+        ]
+        await message.channel.send(random.choice(cat_responses))
+
+    await bot.process_commands(message)
 
 def load_extensions():
     bot.load_extension("music")

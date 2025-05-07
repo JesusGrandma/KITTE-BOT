@@ -1,24 +1,20 @@
-# image_gen.py
-import requests
+import os
+from openai import OpenAI
+from dotenv import load_dotenv
 
-CRAIYON_API_URL = "https://api.craiyon.com/generate"  # Craiyon's unofficial API URL
+load_dotenv()
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def generate_image(prompt):
     try:
-        # Prepare the payload
-        response = requests.post(CRAIYON_API_URL, json={"prompt": prompt})
-        
-        # Check if the response is successful
-        if response.status_code == 200:
-            data = response.json()
-            if "images" in data:
-                return data["images"][0]  # Return the first image from the response
-            else:
-                print("Error: No images found in the response.")
-                return None
-        else:
-            print(f"[Craiyon] Error: {response.status_code}")
-            return None
+        response = client.images.generate(
+            model="dall-e-3",
+            prompt=prompt,
+            n=1,
+            size="1024x1024",
+            quality="standard"
+        )
+        return response.data[0].url
     except Exception as e:
-        print(f"[Craiyon] Error: {e}")
+        print(f"[OpenAI] Image generation error: {e}")
         return None
