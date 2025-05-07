@@ -1,14 +1,19 @@
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-from cat_facts import get_random_cat_fact
 import os
-from image_gen import generate_image
-from chatgpt_handler import ask_cat_gpt
 import random
 import time
 import platform
 import asyncio
+
+# Local imports
+from image_gen import generate_image
+from chatgpt_handler import ask_cat_gpt
+from cat_facts import get_random_cat_fact
+from lyrics import Lyrics
+from music import Music
+from reddit_memes import RedditMemes
 
 # Load environment variables
 load_dotenv()
@@ -76,28 +81,24 @@ async def info(ctx):
         await ctx.send("❌ I couldn't send you a DM. Please check your privacy settings.")
 
 @bot.command(name="image", help="Generate an AI image from a prompt")
-async def image(ctx, *, prompt):
-    await ctx.send(f"Generating image for: `{prompt}`. Please be patient it may take a second... ")
-
+async def imagine(ctx, *, prompt):
+    await ctx.send(f"Generating image for: {prompt}. Please wait as this could take a few seconds.")
     image_url = generate_image(prompt)
-
+    
     if image_url:
-        embed = discord.Embed(
-            title="Generated Image",
-            description=f"Prompt: *{prompt}*",
-            color=discord.Color.purple()
-        )
-        embed.set_image(url=image_url)
-        await ctx.send(embed=embed)
+        await ctx.send(image_url)
     else:
         await ctx.send("❌ Failed to generate image.")
 
+@bot.command(name="catfact", help="Sends a random cat fact")
+async def catfact(ctx):
+    fact = get_random_cat_fact()
+    await ctx.send(f"**Cat Fact:** {fact}")
 
 @bot.command(name="kittyuh", help="Sends a random cat picture")
 async def cat(ctx):
     folder = "cat-pics"
     
-    # Check if the folder exists
     if not os.path.exists(folder):
         await ctx.send("❌ No cat pics folder found!")
         return
@@ -119,7 +120,6 @@ async def cat(ctx):
 @bot.command(name="ask", help="Ask GPT-3.5 a question")
 async def ask(ctx, *, prompt):
     try:
-        # Run the GPT-3.5 ask function asynchronously
         answer = await asyncio.to_thread(ask_cat_gpt, prompt)
         await ctx.send(answer)
     except Exception as e:
@@ -139,16 +139,10 @@ async def help_command(ctx):
         cogs[cog_name].append(command)
 
     for cog_name, commands_list in cogs.items():
-        value = "\n".join(f"`/{cmd.name}` - {cmd.help or 'No description'}" for cmd in commands_list)
+        value = "\n".join(f"/{cmd.name} - {cmd.help or 'No description'}" for cmd in commands_list)
         embed.add_field(name=f"🐱 {cog_name}", value=value, inline=False)
 
     await ctx.send(embed=embed)
-
-@bot.command(name="catfact", help="Sends a random cat fact ")
-async def catfact(ctx):
-    fact = get_random_cat_fact()
-    await ctx.send(f"**Cat Fact:** {fact}")
-
 
 @bot.event
 async def on_message(message):
@@ -192,10 +186,13 @@ async def on_message(message):
 
     await bot.process_commands(message)
 
-def load_extensions():
-    bot.load_extension("music")
-    bot.load_extension("reddit_memes")
+# 🔧 Directly add cog instances here
+async def main():
+    async with bot:
+        bot.add_cog(Music(bot))
+        bot.add_cog(RedditMemes(bot))
+        bot.add_cog(Lyrics(bot))
+        await bot.start(TOKEN)
 
 if __name__ == "__main__":
-    load_extensions()
-    bot.run(TOKEN)
+    asyncio.run(main())

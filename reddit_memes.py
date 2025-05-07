@@ -43,5 +43,5 @@ class RedditMemes(commands.Cog):
         await ctx.send(embed=embed)
 
 # **Add the setup function here**
-def setup(bot):
-    bot.add_cog(RedditMemes(bot))
+async def setup(bot):
+    await bot.add_cog(reddit_memes(bot))

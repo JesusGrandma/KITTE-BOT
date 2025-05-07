@@ -129,5 +129,5 @@ class Music(commands.Cog):
         """Starts the idle check loop when the bot is ready."""
         self.check_idle.start()
 
-def setup(bot):
-    bot.add_cog(Music(bot))
+async def setup(bot):
+    await bot.add_cog(music(bot))
