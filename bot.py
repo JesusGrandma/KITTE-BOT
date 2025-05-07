@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
+from cat_facts import get_random_cat_fact
 import os
 from image_gen import generate_image
 from chatgpt_handler import ask_cat_gpt
@@ -76,7 +77,7 @@ async def info(ctx):
 
 @bot.command(name="image", help="Generate an AI image from a prompt")
 async def image(ctx, *, prompt):
-    await ctx.send(f"Generating image for: `{prompt}`...")
+    await ctx.send(f"Generating image for: `{prompt}`. Please be patient it may take a second... ")
 
     image_url = generate_image(prompt)
 
@@ -142,6 +143,12 @@ async def help_command(ctx):
         embed.add_field(name=f"🐱 {cog_name}", value=value, inline=False)
 
     await ctx.send(embed=embed)
+
+@bot.command(name="catfact", help="Sends a random cat fact ")
+async def catfact(ctx):
+    fact = get_random_cat_fact()
+    await ctx.send(f"**Cat Fact:** {fact}")
+
 
 @bot.event
 async def on_message(message):
