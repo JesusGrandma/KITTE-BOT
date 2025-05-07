@@ -1,19 +1,24 @@
-# bot.py
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 import os
 from image_gen import generate_image
-import io
 import random
+from openai import OpenAI
 
+# Load environment variables
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
+# Setup OpenAI client
+client = OpenAI(api_key=OPENAI_API_KEY)
+
+# Setup Discord bot
 intents = discord.Intents.default()
 intents.message_content = True
 intents.voice_states = True
-intents.members = True  # ✅ Needed for welcome message
+intents.members = True  # Needed for welcome messages
 
 bot = commands.Bot(command_prefix="/", intents=intents, help_command=None)
 
@@ -23,7 +28,6 @@ async def on_ready():
 
 @bot.event
 async def on_member_join(member):
-    # Try to find a channel named 'general' to send the welcome message
     channel = discord.utils.get(member.guild.text_channels, name="welcome")
     if channel:
         await channel.send(f"🎉 Welcome to the server, {member.mention}! We're glad to have you here! 🐱")
@@ -38,7 +42,7 @@ async def imagine(ctx, *, prompt):
     image_url = generate_image(prompt)
     
     if image_url:
-        await ctx.send(image_url)  # Send the image URL to Discord
+        await ctx.send(image_url)
     else:
         await ctx.send("❌ Failed to generate image.")
 
@@ -59,6 +63,71 @@ async def cat(ctx):
 
     await ctx.send(f"{chosen_emoji} Here's a random cat for you!", file=discord.File(file_path))
 
+
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
+
+    content = message.content.lower()
+    cat_words = ["meow", "kitty", "cat", "purr", "treat", "whiskers", "litter", "feline"]
+
+    # Random response if "edbot" is mentioned
+    if "edbot" in content:
+        edbot_responses = [
+            "fuck edbot",
+            "kitte better than edbot",
+            "pffft, Edbot wishes it had whiskers like mine.",
+            "*curls up on Edbot's keyboard and takes a nap*",
+            "Edbot smells like expired tuna.",
+            "I'm the real purr-fessional here, not Edbot"
+        ]
+        await message.channel.send(random.choice(edbot_responses))
+
+    # Random cat-like response
+    chance = 0.05  # 5% base chance
+    if any(word in content for word in cat_words):
+        chance = 0.25  # 25% if cat word mentioned
+
+    if random.random() < chance:
+        cat_responses = [
+            "Meow? ", 
+            "*licks paw*",  
+            "*purrs loudly* ", 
+            "Did you say... tuna? ", 
+            "*knocks cup off table* ", 
+            "*stares at you silently from the corner*"
+        ]
+        await message.channel.send(random.choice(cat_responses))
+
+    await bot.process_commands(message)
+
+
+
+
+@bot.command(name="ask", help="Ask GPT-3.5 a question")
+async def ask(ctx, *, prompt):
+
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": (
+                "You are a cat. You only respond like a cat would. "
+                "You are sassy with your responses, just like a cat. You have an attitude."
+                "Your responses often include 'meow', 'purr', and cat-like sounds. Be sassy and aloof sometimes, like a real cat. You are also very smart and can answer hard questions."
+                )},
+
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=300
+        )
+        answer = response.choices[0].message.content.strip()
+        await ctx.send(f"{answer}")
+    except Exception as e:
+        await ctx.send(f"❌ Error: {str(e)}")
+
 @bot.command(name="help", help="General help command")
 async def help_command(ctx):
     embed = discord.Embed(title="🐱 KITTIE-BOT Commands", color=discord.Color.purple())
@@ -78,12 +147,10 @@ async def help_command(ctx):
 
     await ctx.send(embed=embed)
 
-# Just regular function (not async)
 def load_extensions():
     bot.load_extension("music")
     bot.load_extension("reddit_memes")
 
-# Main
 if __name__ == "__main__":
     load_extensions()
     bot.run(TOKEN)
