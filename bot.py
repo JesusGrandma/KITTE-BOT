@@ -14,6 +14,7 @@ from cat_facts import get_random_cat_fact
 from lyrics import Lyrics
 from music import Music
 from reddit_memes import RedditMemes
+from steam_functions import Steam
 
 # Load environment variables
 load_dotenv()
@@ -192,6 +193,7 @@ async def main():
         bot.add_cog(Music(bot))
         bot.add_cog(RedditMemes(bot))
         bot.add_cog(Lyrics(bot))
+        bot.add_cog(Steam(bot))
         await bot.start(TOKEN)
 
 if __name__ == "__main__":
