@@ -15,8 +15,12 @@ class Music(commands.Cog):
     async def join_vc(self, ctx):
         if ctx.author.voice:
             channel = ctx.author.voice.channel
-            self.voice_client = await channel.connect()
-            print(f"Bot joined {channel.name}")
+            if not self.voice_client or not self.voice_client.is_connected():
+                self.voice_client = await channel.connect()
+                print(f"Bot joined {channel.name}")
+            elif self.voice_client.channel != channel:
+                await self.voice_client.move_to(channel)
+                print(f"Bot moved to {channel.name}")
         else:
             await ctx.send("You must join a voice channel first.")
 
@@ -28,104 +32,63 @@ class Music(commands.Cog):
         elif ctx:
             await ctx.send("I'm not in a voice channel!")
 
-    def get_youtube_audio(self, url):
+    def get_youtube_audio(self, query):
         ydl_opts = {
             'format': 'bestaudio/best',
-            'extractaudio': True,
-            'audioquality': 1,
-            'outtmpl': 'downloads/%(id)s.%(ext)s',
-            'restrictfilenames': True,
+            'default_search': 'ytsearch1',  # This enables keyword search
             'noplaylist': True,
             'quiet': True,
-            'logtostderr': False,
-            'forcegeneric': True
         }
-
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=False)
-            if 'formats' in info:
-                audio_url = next(
-                    (item['url'] for item in info['formats'] if 'acodec' in item and item['acodec'] != 'none'),
-                    None
-                )
-                if audio_url:
-                    print(f"Audio URL: {audio_url}")
-                    return audio_url
-                else:
-                    raise ValueError("No valid audio stream found.")
-            else:
-                raise ValueError("Unable to extract info from URL.")
+            info = ydl.extract_info(query, download=False)
+            # If it's a search, info will have 'entries'
+            if 'entries' in info and info['entries']:
+                video = info['entries'][0]
+                return video['url'], video['webpage_url'], video['title']
+            # If it's a direct URL
+            return info['url'], info.get('webpage_url', query), info.get('title', 'Unknown Title')
 
-    @commands.command(name="search", help="Searches YouTube and asks if you'd like to play it.")
-    async def search(self, ctx, *, query: str):
-        ydl_opts = {
-            'format': 'bestaudio/best',
-            'noplaylist': True,
-            'quiet': True,
-            'default_search': 'ytsearch1',
-        }
+    @commands.command(name="play", help="Play music from YouTube by URL or search keywords.")
+    async def play(self, ctx, *, query: str):
+        if not ctx.author.voice:
+            await ctx.send("You must join a voice channel first.")
+            return
 
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            try:
-                info = ydl.extract_info(query, download=False)
-                if 'entries' in info and len(info['entries']) > 0:
-                    video = info['entries'][0]
-                    url = video['webpage_url']
-                    message = await ctx.send(f"Top result for **{query}**:\n{url}\nReact with ▶️ to play or ❌ to cancel.")
-                    await message.add_reaction('▶️')
-                    await message.add_reaction('❌')
-
-                    def check(reaction, user):
-                        return user == ctx.author and str(reaction.emoji) in ['▶️', '❌'] and reaction.message.id == message.id
-
-                    try:
-                        reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=check)
-                        if str(reaction.emoji) == '▶️':
-                            await ctx.invoke(self.bot.get_command("play"), url=url)
-                        else:
-                            await ctx.send("Cancelled.")
-                    except asyncio.TimeoutError:
-                        await ctx.send("Timed out.")
-                else:
-                    await ctx.send("No results found.")
-            except Exception as e:
-                await ctx.send(f"Search failed: {e}")
-
-    @commands.command(name="play", help="Plays a song from YouTube")
-    async def play(self, ctx, url: str):
         await self.join_vc(ctx)
-
+        
         try:
-            audio_url = self.get_youtube_audio(url)
-        except ValueError as e:
-            await ctx.send(str(e))
-            return
+            # If not a URL, yt-dlp will handle it as a search due to default_search
+            audio_url, page_url, title = self.get_youtube_audio(query)
+            
+            if self.voice_client.is_playing() or self.voice_client.is_paused():
+                self.song_queue.append((audio_url, page_url, title))
+                await ctx.send(f"Added to queue: [{title}]({page_url})")
+                return
 
-        if self.voice_client.is_playing() or self.voice_client.is_paused():
-            self.song_queue.append(audio_url)
-            await ctx.send(f"Added to queue: {url}")
-            return
+            self.music_playing = True
+            self.last_activity_time = time.time()
+            self.voice_client.play(
+                discord.FFmpegPCMAudio(audio_url, before_options='-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5'),
+                after=lambda e: self.bot.loop.create_task(self.after_play(e, ctx))
+            )
+            await ctx.send(f"Now playing: [{title}]({page_url})")
 
-        self.music_playing = True
-        self.last_activity_time = time.time()
-        self.voice_client.play(
-            discord.FFmpegPCMAudio(audio_url, before_options='-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5'),
-            after=self.after_play
-        )
-        await ctx.send(f"Now playing: {url}")
+        except Exception as e:
+            await ctx.send(f"Error: {str(e)}")
 
-    def after_play(self, error):
+    async def after_play(self, error, ctx):
         if error:
             print(f"Error: {error}")
         self.music_playing = False
-
         if self.song_queue:
             next_song = self.song_queue.pop(0)
+            audio_url, page_url, title = next_song
             self.last_activity_time = time.time()
             self.voice_client.play(
-                discord.FFmpegPCMAudio(next_song, before_options='-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5'),
-                after=self.after_play
+                discord.FFmpegPCMAudio(audio_url, before_options='-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5'),
+                after=lambda e: self.bot.loop.create_task(self.after_play(e, ctx))
             )
+            await ctx.send(f"Now playing: [{title}]({page_url})")
 
     @commands.command(name="stop", help="Stops the current song and leaves the voice channel.")
     async def stop(self, ctx):
