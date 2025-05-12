@@ -16,7 +16,8 @@ from lyrics import Lyrics
 from music import Music
 from reddit_memes import RedditMemes
 from steam_functions import Steam
-from weather import get_weather  # <-- Make sure this is here
+from weather import get_weather
+
 
 # Load environment variables
 load_dotenv()
@@ -43,6 +44,8 @@ session = None
 async def on_ready():
     global session
     session = aiohttp.ClientSession()
+    activity = discord.Game(name="Final Fantasy XIV")  # Replace with your custom message
+    await bot.change_presence(status=discord.Status.online, activity=activity)
     print(f"Bot is online as {bot.user}")
 
 @bot.event
@@ -59,6 +62,7 @@ async def on_disconnect():
         await session.close()
     print("Closed aiohttp session.")
 
+# General Commands
 @bot.command(help="Replies with Pong!")
 async def ping(ctx):
     await ctx.send("Pong!")
@@ -94,15 +98,7 @@ async def info(ctx):
     except discord.Forbidden:
         await ctx.send("❌ I couldn't send you a DM. Please check your privacy settings.")
 
-@bot.command(name="image", help="Generate an AI image from a prompt")
-async def imagine(ctx, *, prompt):
-    await ctx.send(f"Generating image for: {prompt}. Please wait as this could take a few seconds.")
-    image_url = generate_image(prompt)
-    if image_url:
-        await ctx.send(image_url)
-    else:
-        await ctx.send("❌ Failed to generate image.")
-
+# Fun Commands
 @bot.command(name="catfact", help="Sends a random cat fact")
 async def catfact(ctx):
     fact = get_random_cat_fact()
@@ -124,6 +120,7 @@ async def cat(ctx):
     chosen_emoji = random.choice(emojis)
     await ctx.send(f"{chosen_emoji} Here's a random cat for you!", file=discord.File(file_path))
 
+# AI Commands
 @bot.command(name="ask", help="Ask GPT-3.5 a question")
 async def ask(ctx, *, prompt):
     try:
@@ -132,6 +129,16 @@ async def ask(ctx, *, prompt):
     except Exception as e:
         await ctx.send(f"❌ Error: {str(e)}")
 
+@bot.command(name="image", help="Generate an AI image from a prompt")
+async def imagine(ctx, *, prompt):
+    await ctx.send(f"Generating image for: {prompt}. Please wait as this could take a few seconds.")
+    image_url = generate_image(prompt)
+    if image_url:
+        await ctx.send(image_url)
+    else:
+        await ctx.send("❌ Failed to generate image.")
+
+# Utility Commands
 @bot.command(name="weather", help="Get current weather for a city")
 async def weather(ctx, *, city: str):
     await ctx.trigger_typing()
@@ -160,67 +167,121 @@ async def weather(ctx, *, city: str):
     embed.add_field(name="Wind", value=f"{wind_kph} kph", inline=True)
     await ctx.send(embed=embed)
 
+# Help Command
 @bot.command(name="help", help="Shows a list of available commands")
 async def help_command(ctx):
     embed = discord.Embed(
         title="🐱 KITTIE-BOT Commands",
-        description="Here are the available commands grouped by feature:",
+        description="Here are the available commands grouped by category:",
         color=discord.Color.purple()
     )
 
-    # Group commands by their Cog (feature/module)
-    categories = {}
+    # Group commands by category
+    categories = {
+        "General": [],
+        "Music": [],
+        "Fun": [],
+        "AI": [],
+        "Utilities": []
+    }
+
     for command in bot.commands:
         if command.hidden:
             continue
-        cog_name = command.cog_name or "General"
-        categories.setdefault(cog_name, []).append(command)
+        # Categorize commands based on their name or purpose
+        if command.name in ["ping", "status", "info"]:
+            categories["General"].append(command)
+        elif command.name in ["join", "leave", "play", "pause", "resume", "stop"]:
+            categories["Music"].append(command)
+        elif command.name in ["catfact", "kittyuh", "duck", "insult"]:
+            categories["Fun"].append(command)
+        elif command.name in ["ask", "image"]:
+            categories["AI"].append(command)
+        elif command.name in ["weather", "reddit"]:
+            categories["Utilities"].append(command)
 
+    # Add commands to the embed
     for category, commands_list in categories.items():
-        value = "\n".join(f"/{cmd.name} - {cmd.help or 'No description'}" for cmd in commands_list)
-        embed.add_field(name=f"**{category}**", value=value, inline=False)
+        if commands_list:
+            value = "\n".join(f"/{cmd.name} - {cmd.help or 'No description'}" for cmd in commands_list)
+            embed.add_field(name=f"**{category}**", value=value, inline=False)
 
-    embed.set_footer(text="Use / to execute a command.")
+    embed.set_footer(text="Use /<command> to execute a command.")
     await ctx.send(embed=embed)
 
-
+# Trolling Features
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
         return
-    if message.content.startswith("/"):
-        await bot.process_commands(message)
-        return
+
     content = message.content.lower()
-    cat_words = ["meow", "kitty", "cat", "purr", "treat", "whiskers", "litter", "feline"]
-    if "edbot" in content:
-        edbot_responses = [
-            "fuck edbot",
-            "kitte better than edbot",
-            "pffft, Edbot wishes it had whiskers like mine.",
-            "*curls up on Edbot's keyboard and takes a nap*",
-            "Edbot smells like expired tuna.",
-            "I'm the real purr-fessional here, not Edbot"
+
+    # Respond to Eddie (creator)
+    if message.author.id == 339523416124162048:  # Replace with Eddie's Discord user ID
+        eddie_responses = [
+            "burger with the sauce",
+            "mac and cheese",
+            "fuck you eddie",
+            "destiny 2",
+            "how much have you spent on magic",
         ]
-        if random.random() < 0.75:
+        if random.random() < 0.5:  # 50% chance to respond
+            await message.channel.send(random.choice(eddie_responses))
+        return
+
+    # Respond to Edbot
+    if message.author.id == 895875892075700284:
+        edbot_responses = [
+            "im better",
+            "edbot smells like fish",
+            "meow",
+            "winston eats edbot",
+            "edbot is jeramey derkas's son",
+            "no bitches",
+            "you smell like dylan",
+            "charles casavant",
+            "i am supreme",
+            "i have 3000 hours on dbd",
+            "overwatch 2 more like... i hate myself",
+        ]
+        if random.random() < 0.75:  # 75% chance to respond
             await message.channel.send(random.choice(edbot_responses))
         return
-    chance = 0.05
+
+    # Respond when KITTIE is mentioned
+    if "kittie" in content:
+        kittie_responses = [
+            "what",
+            "Meow",
+            "plz stop",
+            "john poppytits",
+            "wtf do you want",
+            "i dont pay child support",
+        ]
+        await message.channel.send(random.choice(kittie_responses))
+        return
+
+    # General cat-related responses
+    cat_words = ["meow", "kitty", "cat", "purr", "treat", "whiskers", "litter", "feline"]
+    chance = 0.05  # Default chance to respond
     if any(word in content for word in cat_words):
-        chance = 0.25
+        chance = 0.25  # Higher chance if cat-related words are detected
     if random.random() < chance:
         cat_responses = [
-            "Meow? ",
+            "Meow? 🐾",
             "*licks paw*",
-            "*purrs loudly* ",
-            "Did you say... tuna? ",
-            "*knocks cup off table* ",
-            "*stares at you silently from the corner*"
+            "*purrs loudly* 😺",
+            "Did you say... tuna? 🐟",
+            "*knocks cup off table* 😼",
+            "*stares at you silently from the corner*",
         ]
         await message.channel.send(random.choice(cat_responses))
+
+    # Process commands
     await bot.process_commands(message)
 
-# 🔧 Directly add cog instances here
+# Main Function
 async def main():
     async with bot:
         bot.add_cog(Music(bot))
