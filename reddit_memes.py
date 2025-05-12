@@ -1,11 +1,9 @@
-import discord
 from discord.ext import commands
-import asyncpraw
+import discord
 import random
+import asyncpraw
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
 
 class RedditMemes(commands.Cog):
     def __init__(self, bot):
@@ -16,32 +14,29 @@ class RedditMemes(commands.Cog):
             user_agent=os.getenv("REDDIT_USER_AGENT")
         )
 
-    @commands.command(name="caseoh", help="Pull a funny meme from r/caseoh_")
-    async def caseoh(self, ctx):
-        subreddit = await self.reddit.subreddit("caseoh_")
-        
-        # Get top posts of the week
-        posts = [
-            post async for post in subreddit.top(time_filter="week", limit=100)
-            if not post.stickied 
-            and post.score > 100  # Only popular posts
-            and post.url.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.gifv', '.mp4'))
-        ]
-        
-        if not posts:
-            await ctx.send("No funny memes found this week. 😿")
-            return
+    @commands.command(name="reddit", help="Get a random post from any subreddit (e.g. /reddit memes)")
+    async def reddit(self, ctx, subreddit_name: str):
+        try:
+            subreddit = await self.reddit.subreddit(subreddit_name, fetch=True)
+            # Check if the subreddit is NSFW
+            if subreddit.over18:  # This is the correct attribute for asyncpraw
+                await ctx.send("❌ Sorry, I can't fetch posts from NSFW subreddits.")
+                return
 
-        random.shuffle(posts)
-        post = posts[0]
+            # Fetch up to 50 hot posts (excluding stickied)
+            posts = [
+                post async for post in subreddit.hot(limit=50)
+                if not post.stickied
+            ]
+            if not posts:
+                await ctx.send("No posts found in that subreddit.")
+                return
+            post = random.choice(posts)
+            embed = discord.Embed(title=post.title, url=post.url, color=discord.Color.orange())
+            if post.url.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.gifv', '.mp4')):
+                embed.set_image(url=post.url)
+            embed.set_footer(text=f"👍 {post.score} | 💬 {post.num_comments} | From r/{subreddit_name}")
+            await ctx.send(embed=embed)
+        except Exception as e:
+            await ctx.send(f"❌ Error: {str(e)}")
 
-        # Optional: embed for nicer formatting
-        embed = discord.Embed(title=post.title, url=post.url, color=discord.Color.orange())
-        embed.set_image(url=post.url)
-        embed.set_footer(text=f"👍 {post.score} | 💬 {post.num_comments} | From r/caseoh_")
-
-        await ctx.send(embed=embed)
-
-# **Add the setup function here**
-async def setup(bot):
-    await bot.add_cog(reddit_memes(bot))
