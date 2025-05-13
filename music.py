@@ -3,6 +3,9 @@ from discord.ext import commands, tasks
 import asyncio
 import yt_dlp as youtube_dl
 import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Music(commands.Cog):
     def __init__(self, bot):
@@ -17,115 +20,147 @@ class Music(commands.Cog):
             channel = ctx.author.voice.channel
             if not self.voice_client or not self.voice_client.is_connected():
                 self.voice_client = await channel.connect()
-                print(f"Bot joined {channel.name}")
+                logger.info(f"Joined voice channel: {channel.name}")
             elif self.voice_client.channel != channel:
                 await self.voice_client.move_to(channel)
-                print(f"Bot moved to {channel.name}")
-        else:
-            await ctx.send("You must join a voice channel first.")
+                logger.info(f"Moved to voice channel: {channel.name}")
+            return True
+        await ctx.send("❌ You must be in a voice channel first!")
+        return False
 
-    async def leave_vc(self, ctx):
+    async def leave_vc(self, ctx=None):
         if self.voice_client:
             await self.voice_client.disconnect()
             self.voice_client = None
-            print("Bot has left the voice channel.")
+            logger.info("Left voice channel")
         elif ctx:
-            await ctx.send("I'm not in a voice channel!")
+            await ctx.send("❌ Not in a voice channel")
 
-    def get_youtube_audio(self, query):
+    async def get_youtube_audio(self, query):
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self._sync_ytdl_extract, query)
+
+    def _sync_ytdl_extract(self, query):
         ydl_opts = {
             'format': 'bestaudio/best',
-            'default_search': 'ytsearch1',  # This enables keyword search
+            'default_search': 'ytsearch1',
             'noplaylist': True,
             'quiet': True,
+            'socket_timeout': 30,
+            'nocheckcertificate': True
         }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(query, download=False)
-            # If it's a search, info will have 'entries'
-            if 'entries' in info and info['entries']:
-                video = info['entries'][0]
-                return video['url'], video['webpage_url'], video['title']
-            # If it's a direct URL
-            return info['url'], info.get('webpage_url', query), info.get('title', 'Unknown Title')
+            try:
+                info = ydl.extract_info(query, download=False)
+                if 'entries' in info:
+                    video = info['entries'][0]
+                else:
+                    video = info
+                return (
+                    video['url'],
+                    video.get('webpage_url', query),
+                    video.get('title', 'Unknown Title')
+                )
+            except Exception as e:
+                logger.error(f"YTDL Error: {str(e)}")
+                raise
 
-    @commands.command(name="play", help="Play music from YouTube by URL or search keywords.")
+    @commands.command(name="play")
     async def play(self, ctx, *, query: str):
-        if not ctx.author.voice:
-            await ctx.send("You must join a voice channel first.")
+        """Play audio from YouTube"""
+        if not await self.join_vc(ctx):
             return
 
-        await self.join_vc(ctx)
-        
         try:
-            # If not a URL, yt-dlp will handle it as a search due to default_search
-            audio_url, page_url, title = self.get_youtube_audio(query)
-            
+            audio_url, page_url, title = await self.get_youtube_audio(query)
+            logger.info(f"Playing: {title} ({audio_url})")
+
             if self.voice_client.is_playing() or self.voice_client.is_paused():
                 self.song_queue.append((audio_url, page_url, title))
-                await ctx.send(f"Added to queue: [{title}]({page_url})")
+                await ctx.send(f"🎶 Added to queue: [{title}]({page_url})")
                 return
 
-            self.music_playing = True
-            self.last_activity_time = time.time()
-            self.voice_client.play(
-                discord.FFmpegPCMAudio(audio_url, before_options='-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5'),
-                after=lambda e: self.bot.loop.create_task(self.after_play(e, ctx))
-            )
-            await ctx.send(f"Now playing: [{title}]({page_url})")
+            self._play_audio(ctx, audio_url, page_url, title)
+            await ctx.send(f"🎵 Now playing: [{title}]({page_url})")
 
         except Exception as e:
-            await ctx.send(f"Error: {str(e)}")
+            logger.error(f"Play error: {str(e)}")
+            await ctx.send(f"❌ Error: {str(e)}")
 
-    async def after_play(self, error, ctx):
-        if error:
-            print(f"Error: {error}")
+    def _play_audio(self, ctx, audio_url, page_url, title):
+        self.music_playing = True
+        self.last_activity_time = time.time()
+
+        ffmpeg_options = {
+            'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+            'options': '-vn -b:a 128k -ac 2'
+        }
+
+        self.voice_client.play(
+            discord.FFmpegOpusAudio(
+                executable="ffmpeg",
+                source=audio_url,
+                **ffmpeg_options
+            ),
+            after=lambda e: self.bot.loop.create_task(self._after_play(e, ctx))
+        )
+
+    async def _after_play(self, error, ctx):
         self.music_playing = False
+        if error:
+            logger.error(f"Playback error: {error}")
+            await ctx.send(f"❌ Playback error: {error}")
+
         if self.song_queue:
-            next_song = self.song_queue.pop(0)
-            audio_url, page_url, title = next_song
-            self.last_activity_time = time.time()
-            self.voice_client.play(
-                discord.FFmpegPCMAudio(audio_url, before_options='-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5'),
-                after=lambda e: self.bot.loop.create_task(self.after_play(e, ctx))
-            )
-            await ctx.send(f"Now playing: [{title}]({page_url})")
+            next_url, next_page, next_title = self.song_queue.pop(0)
+            self._play_audio(ctx, next_url, next_page, next_title)
+            await ctx.send(f"▶️ Now playing: [{next_title}]({next_page})")
+        else:
+            await self.leave_vc()
 
-    @commands.command(name="stop", help="Stops the current song and leaves the voice channel.")
+    @commands.command(name="stop")
     async def stop(self, ctx):
-        if self.voice_client and (self.voice_client.is_playing() or self.voice_client.is_paused()):
-            self.music_playing = False
+        """Stop playback and clear queue"""
+        if self.voice_client:
+            self.song_queue.clear()
             self.voice_client.stop()
-            await self.leave_vc(ctx)
-            await ctx.send("Stopped and left the voice channel.")
+            await self.leave_vc()
+            await ctx.send("⏹️ Stopped playback")
         else:
-            await ctx.send("No music is currently playing.")
+            await ctx.send("❌ Not playing anything")
 
-    @commands.command(name="pause", help="Pauses the currently playing song.")
-    async def pause(self, ctx):
+    @commands.command(name="skip")
+    async def skip(self, ctx):
+        """Skip current track"""
         if self.voice_client and self.voice_client.is_playing():
-            self.voice_client.pause()
-            await ctx.send("Paused the song.")
+            self.voice_client.stop()
+            await ctx.send("⏭️ Skipped current track")
         else:
-            await ctx.send("No music is currently playing.")
+            await ctx.send("❌ Nothing to skip")
 
-    @commands.command(name="resume", help="Resumes the paused song.")
-    async def resume(self, ctx):
-        if self.voice_client and self.voice_client.is_paused():
-            self.voice_client.resume()
-            await ctx.send("Resumed the song.")
-        else:
-            await ctx.send("No song is currently paused.")
+    @commands.command(name="queue")
+    async def queue(self, ctx):
+        """Show current queue"""
+        if not self.song_queue:
+            await ctx.send("📭 Queue is empty")
+            return
+
+        queue_list = "\n".join(
+            [f"{i+1}. [{song[2]}]({song[1]})" for i, song in enumerate(self.song_queue)]
+        )
+        await ctx.send(f"🎶 Current queue:\n{queue_list}")
 
     @tasks.loop(seconds=60)
-    async def check_idle(self):
-        if self.voice_client and not self.voice_client.is_playing() and not self.voice_client.is_paused():
-            if time.time() - self.last_activity_time > 300:
-                print("Idle timeout reached, leaving VC.")
-                await self.leave_vc(None)
+    async def _check_inactivity(self):
+        if (self.voice_client and
+            not self.voice_client.is_playing() and
+            (time.time() - self.last_activity_time) > 300):
+            logger.info("Inactivity timeout - leaving voice channel")
+            await self.leave_vc()
 
     @commands.Cog.listener()
     async def on_ready(self):
-        self.check_idle.start()
+        self._check_inactivity.start()
 
 async def setup(bot):
     await bot.add_cog(Music(bot))

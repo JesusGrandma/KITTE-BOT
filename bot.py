@@ -16,19 +16,18 @@ from lyrics import Lyrics
 from music import Music
 from reddit_memes import RedditMemes
 from steam_functions import Steam
-from weather import get_weather
+from weather import WeatherCog
+from unscramble_game import WordUnscramble
+
 
 # Load environment variables
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
-WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 EDDIE_ID = int(os.getenv("EDDIE_ID"))
 EDBOT_ID = int(os.getenv("EDBOT_ID"))
 
 if not TOKEN:
     raise ValueError("DISCORD_TOKEN not found in environment variables")
-if not WEATHER_API_KEY:
-    raise ValueError("WEATHER_API_KEY not found in environment variables")
 
 # Setup Discord bot
 intents = discord.Intents.default()
@@ -143,33 +142,6 @@ async def imagine(ctx, *, prompt):
     else:
         await ctx.send("❌ Failed to generate image.")
 
-# Utility Commands
-
-@bot.command(name="weather", help="Get current weather for a city")
-async def weather(ctx, *, city: str):
-    await ctx.trigger_typing()
-    data = await get_weather(city, session)
-    if not data or "error" in data:
-        await ctx.send("❌ Couldn't fetch weather data. Please check the city name.")
-        return
-    location = data['location']['name']
-    country = data['location']['country']
-    condition = data['current']['condition']['text']
-    temp_c = data['current']['temp_c']
-    feelslike_c = data['current']['feelslike_c']
-    humidity = data['current']['humidity']
-    wind_kph = data['current']['wind_kph']
-    icon_url = "http:" + data['current']['condition']['icon']
-    embed = discord.Embed(
-        title=f"Weather in {location}, {country}",
-        description=f"{condition}",
-        color=discord.Color.blue()
-    )
-    embed.set_thumbnail(url=icon_url)
-    embed.add_field(name="Temperature", value=f"{temp_c}°C (feels like {feelslike_c}°C)", inline=False)
-    embed.add_field(name="Humidity", value=f"{humidity}%", inline=True)
-    embed.add_field(name="Wind", value=f"{wind_kph} kph", inline=True)
-    await ctx.send(embed=embed)
 
 # Help Command
 
@@ -196,11 +168,11 @@ async def help_command(ctx):
             categories["General"].append(command)
         elif command.name in ["join", "leave", "play", "pause", "resume", "stop"]:
             categories["Music"].append(command)
-        elif command.name in ["catfact", "kittyuh", "duck", "insult"]:
+        elif command.name in ["catfact", "kittyuh", "guess"]:
             categories["Fun"].append(command)
         elif command.name in ["ask", "image"]:
             categories["AI"].append(command)
-        elif command.name in ["weather", "reddit"]:
+        elif command.name in ["weather", "reddit" ]:
             categories["Utilities"].append(command)
     # Add commands to the embed
     for category, commands_list in categories.items():
@@ -291,6 +263,8 @@ async def main():
         await bot.add_cog(RedditMemes(bot))
         await bot.add_cog(Lyrics(bot))
         await bot.add_cog(Steam(bot))
+        await bot.add_cog(WordUnscramble(bot))
+        await bot.add_cog(WeatherCog(bot))
         await bot.start(TOKEN)
 
 if __name__ == "__main__":
