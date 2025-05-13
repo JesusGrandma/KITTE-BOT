@@ -18,11 +18,12 @@ from reddit_memes import RedditMemes
 from steam_functions import Steam
 from weather import get_weather
 
-
 # Load environment variables
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
+EDDIE_ID = int(os.getenv("EDDIE_ID"))
+EDBOT_ID = int(os.getenv("EDBOT_ID"))
 
 if not TOKEN:
     raise ValueError("DISCORD_TOKEN not found in environment variables")
@@ -34,6 +35,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.voice_states = True
 intents.members = True
+
 bot = commands.Bot(command_prefix="/", intents=intents, help_command=None)
 start_time = time.time()
 
@@ -63,6 +65,7 @@ async def on_disconnect():
     print("Closed aiohttp session.")
 
 # General Commands
+
 @bot.command(help="Replies with Pong!")
 async def ping(ctx):
     await ctx.send("Pong!")
@@ -99,6 +102,7 @@ async def info(ctx):
         await ctx.send("❌ I couldn't send you a DM. Please check your privacy settings.")
 
 # Fun Commands
+
 @bot.command(name="catfact", help="Sends a random cat fact")
 async def catfact(ctx):
     fact = get_random_cat_fact()
@@ -121,6 +125,7 @@ async def cat(ctx):
     await ctx.send(f"{chosen_emoji} Here's a random cat for you!", file=discord.File(file_path))
 
 # AI Commands
+
 @bot.command(name="ask", help="Ask GPT-3.5 a question")
 async def ask(ctx, *, prompt):
     try:
@@ -139,6 +144,7 @@ async def imagine(ctx, *, prompt):
         await ctx.send("❌ Failed to generate image.")
 
 # Utility Commands
+
 @bot.command(name="weather", help="Get current weather for a city")
 async def weather(ctx, *, city: str):
     await ctx.trigger_typing()
@@ -146,7 +152,6 @@ async def weather(ctx, *, city: str):
     if not data or "error" in data:
         await ctx.send("❌ Couldn't fetch weather data. Please check the city name.")
         return
-
     location = data['location']['name']
     country = data['location']['country']
     condition = data['current']['condition']['text']
@@ -155,7 +160,6 @@ async def weather(ctx, *, city: str):
     humidity = data['current']['humidity']
     wind_kph = data['current']['wind_kph']
     icon_url = "http:" + data['current']['condition']['icon']
-
     embed = discord.Embed(
         title=f"Weather in {location}, {country}",
         description=f"{condition}",
@@ -168,6 +172,7 @@ async def weather(ctx, *, city: str):
     await ctx.send(embed=embed)
 
 # Help Command
+
 @bot.command(name="help", help="Shows a list of available commands")
 async def help_command(ctx):
     embed = discord.Embed(
@@ -175,7 +180,6 @@ async def help_command(ctx):
         description="Here are the available commands grouped by category:",
         color=discord.Color.purple()
     )
-
     # Group commands by category
     categories = {
         "General": [],
@@ -184,7 +188,6 @@ async def help_command(ctx):
         "AI": [],
         "Utilities": []
     }
-
     for command in bot.commands:
         if command.hidden:
             continue
@@ -199,17 +202,16 @@ async def help_command(ctx):
             categories["AI"].append(command)
         elif command.name in ["weather", "reddit"]:
             categories["Utilities"].append(command)
-
     # Add commands to the embed
     for category, commands_list in categories.items():
         if commands_list:
             value = "\n".join(f"/{cmd.name} - {cmd.help or 'No description'}" for cmd in commands_list)
             embed.add_field(name=f"**{category}**", value=value, inline=False)
-
-    embed.set_footer(text="Use /<command> to execute a command.")
+    embed.set_footer(text="Use / to execute a command.")
     await ctx.send(embed=embed)
 
 # Trolling Features
+
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
@@ -218,7 +220,7 @@ async def on_message(message):
     content = message.content.lower()
 
     # Respond to Eddie (creator)
-    if message.author.id == 339523416124162048:  # Replace with Eddie's Discord user ID
+    if message.author.id == EDDIE_ID:  # Replace with Eddie's Discord user ID
         eddie_responses = [
             "burger with the sauce",
             "mac and cheese",
@@ -226,12 +228,12 @@ async def on_message(message):
             "destiny 2",
             "how much have you spent on magic",
         ]
-        if random.random() < 0.5:  # 50% chance to respond
+        if random.random() < 0.05:
             await message.channel.send(random.choice(eddie_responses))
-        return
+        # DO NOT return here
 
     # Respond to Edbot
-    if message.author.id == 895875892075700284:
+    elif message.author.id == EDBOT_ID:
         edbot_responses = [
             "im better",
             "edbot smells like fish",
@@ -245,9 +247,9 @@ async def on_message(message):
             "i have 3000 hours on dbd",
             "overwatch 2 more like... i hate myself",
         ]
-        if random.random() < 0.75:  # 75% chance to respond
+        if random.random() < 0.05:
             await message.channel.send(random.choice(edbot_responses))
-        return
+        # DO NOT return here
 
     # Respond when KITTIE is mentioned
     if "kittie" in content:
@@ -260,7 +262,7 @@ async def on_message(message):
             "i dont pay child support",
         ]
         await message.channel.send(random.choice(kittie_responses))
-        return
+        # DO NOT return here
 
     # General cat-related responses
     cat_words = ["meow", "kitty", "cat", "purr", "treat", "whiskers", "litter", "feline"]
@@ -278,16 +280,17 @@ async def on_message(message):
         ]
         await message.channel.send(random.choice(cat_responses))
 
-    # Process commands
-    await bot.process_commands(message)
+    # Always process commands after handling trolling and fun responses
+    await bot.process_commands(message)  # [4][5][6]
 
 # Main Function
+
 async def main():
     async with bot:
-        bot.add_cog(Music(bot))
-        bot.add_cog(RedditMemes(bot))
-        bot.add_cog(Lyrics(bot))
-        bot.add_cog(Steam(bot))
+        await bot.add_cog(Music(bot))
+        await bot.add_cog(RedditMemes(bot))
+        await bot.add_cog(Lyrics(bot))
+        await bot.add_cog(Steam(bot))
         await bot.start(TOKEN)
 
 if __name__ == "__main__":

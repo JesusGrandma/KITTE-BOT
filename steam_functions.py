@@ -65,3 +65,6 @@ class Steam(commands.Cog):
             6: "Looking to Play"
         }
         return states.get(state, "Unknown")
+
+async def setup(bot):
+    await bot.add_cog(Steam(bot))

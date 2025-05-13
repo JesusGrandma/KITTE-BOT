@@ -26,3 +26,6 @@ class Lyrics(commands.Cog):
                 await ctx.send("❌ No lyrics found.")
         except Exception as e:
             await ctx.send(f"❌ Error: {str(e)}")
+
+async def setup(bot):
+    await bot.add_cog(Lyrics(bot))
