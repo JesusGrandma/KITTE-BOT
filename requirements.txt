@@ -6,3 +6,4 @@ requests
 aiohttp
 lyricsgenius
 asyncpraw
+discord.py[voice]

@@ -1,0 +1,11 @@
+# docker-compose.yml
+# use only if building local image of container
+# if your using docker-compose from dockerhub, use usage/docker-compose-from-dockerhub.yml
+version: "3.8"
+
+services:
+  command:
+    build: .
+    command: python bot.py
+    env_file: .env
+    restart: unless-stopped
