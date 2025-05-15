@@ -57,13 +57,14 @@ class WordUnscramble(commands.Cog):
 
     @commands.command(name="unscramble", help="An unscramble game!")
     async def unscramble(self, ctx):
+        await ctx.send("KITTE will win, but lets play.")
         word = random.choice(WORDS)
         scrambled = ''.join(random.sample(word, len(word)))
 
         while scrambled == word:
             scrambled = ''.join(random.sample(word, len(word)))
 
-        await ctx.send(f"🧩 Unscramble this word: **{scrambled}**\n⏳ You have 20 seconds!")
+        await ctx.send(f"Unscramble this word: **{scrambled}**\n You have 20 seconds!")
 
         def check(m):
             return m.channel == ctx.channel and m.author == ctx.author
@@ -71,8 +72,11 @@ class WordUnscramble(commands.Cog):
         try:
             msg = await self.bot.wait_for('message', timeout=20.0, check=check)
             if msg.content.lower() == word:
-                await ctx.send("✅ Correct! You're good at this.")
+                await ctx.send("Correct! Wow, you're smart... but not as smart as me :)")
             else:
-                await ctx.send(f"❌ Nope! The correct word was **{word}**.")
+                await ctx.send(f"Nope! The correct word was **{word}**. You're not as smart as me.")
         except asyncio.TimeoutError:
-            await ctx.send(f"⏰ Time's up! The correct word was **{word}**.")
+            await ctx.send(f"Time's up! The correct word was **{word}**.")
+
+async def setup(bot):
+    await bot.add_cog(WordUnscramble(bot))

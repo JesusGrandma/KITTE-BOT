@@ -118,7 +118,7 @@ class Music(commands.Cog):
         else:
             await self.leave_vc()
 
-    @commands.command(name="stop")
+    @commands.command(name="stop", help="Stops the song and removes the bot from VC")
     async def stop(self, ctx):
         """Stop playback and clear queue"""
         if self.voice_client:
@@ -129,7 +129,7 @@ class Music(commands.Cog):
         else:
             await ctx.send("❌ Not playing anything")
 
-    @commands.command(name="skip")
+    @commands.command(name="skip", help="Skips to next song in the queue")
     async def skip(self, ctx):
         """Skip current track"""
         if self.voice_client and self.voice_client.is_playing():
@@ -138,7 +138,7 @@ class Music(commands.Cog):
         else:
             await ctx.send("❌ Nothing to skip")
 
-    @commands.command(name="queue")
+    @commands.command(name="queue", help="Shows songs in queue")
     async def queue(self, ctx):
         """Show current queue"""
         if not self.song_queue:

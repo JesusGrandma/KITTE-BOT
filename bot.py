@@ -160,20 +160,26 @@ async def help_command(ctx):
         "AI": [],
         "Utilities": []
     }
+
     for command in bot.commands:
         if command.hidden:
             continue
         # Categorize commands based on their name or purpose
         if command.name in ["ping", "status", "info"]:
             categories["General"].append(command)
-        elif command.name in ["join", "leave", "play", "pause", "resume", "stop"]:
+        elif command.name in ["play", "stop", "queue", "skip"]:
             categories["Music"].append(command)
-        elif command.name in ["catfact", "kittyuh", "guess"]:
+        elif command.name in ["catfact", "kittyuh", "unscramble"]:
             categories["Fun"].append(command)
         elif command.name in ["ask", "image"]:
             categories["AI"].append(command)
-        elif command.name in ["weather", "reddit" ]:
+        elif command.name in ["weather", "reddit", "steamprofile", "lyrics"]:
             categories["Utilities"].append(command)
+
+                # else: # Uncomment if you want to add uncategorized commands
+        #     if "Uncategorized" not in categories:
+        #         categories["Uncategorized"] = []
+        #     categories["Uncategorized"].append(command)
     # Add commands to the embed
     for category, commands_list in categories.items():
         if commands_list:
