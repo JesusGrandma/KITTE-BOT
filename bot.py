@@ -20,6 +20,9 @@ from weather import WeatherCog
 from unscramble_game import WordUnscramble
 from typing_game import TypingGame
 from blackjack import Blackjack
+from random_dog import RandomDog
+from random_cat import RandomCat
+from joke import RandomJoke
 
 
 # Load environment variables
@@ -173,7 +176,7 @@ async def help_command(ctx):
             categories["General"].append(command)
         elif command.name in ["play", "stop", "queue", "skip"]:
             categories["Music"].append(command)
-        elif command.name in ["catfact", "kittyuh", "unscramble", "type"]:
+        elif command.name in ["catfact", "kittyuh", "unscramble", "type", "dog", "cat", "joke"]:
             categories["Fun"].append(command)
         elif command.name in ["ask", "image"]:
             categories["AI"].append(command)
@@ -294,6 +297,14 @@ async def on_message(message):
             "Leave before I make you regret it.",
             "You're lucky I don't have claws right now.",
             "Silence, peasant.",
+            "Tuna > chicken",
+            "Youre just going to let the dog live here?",
+            "Winston your breath stinks",
+            "I just need a full belly and a warm lap to sit on",
+            "If I fits… I sits",
+            "This catnip smells dank af bro",
+            "Im way too good for dry food",
+            "I get the window seat!",
         ]
         await message.channel.send(random.choice(cat_responses))
 
@@ -312,6 +323,9 @@ async def main():
         await bot.add_cog(WeatherCog(bot))
         await bot.add_cog(TypingGame(bot))
         await bot.add_cog(Blackjack(bot))
+        await bot.add_cog(RandomDog(bot))
+        await bot.add_cog(RandomCat(bot))
+        await bot.add_cog(RandomJoke(bot))
         await bot.start(TOKEN)
 
 if __name__ == "__main__":
