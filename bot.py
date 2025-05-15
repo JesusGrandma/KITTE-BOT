@@ -18,6 +18,7 @@ from reddit_memes import RedditMemes
 from steam_functions import Steam
 from weather import WeatherCog
 from unscramble_game import WordUnscramble
+from typing_game import TypingGame
 
 
 # Load environment variables
@@ -25,6 +26,7 @@ load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 EDDIE_ID = int(os.getenv("EDDIE_ID"))
 EDBOT_ID = int(os.getenv("EDBOT_ID"))
+DYLAN_ID = int(os.getenv("DYLAN_ID"))
 
 if not TOKEN:
     raise ValueError("DISCORD_TOKEN not found in environment variables")
@@ -171,7 +173,7 @@ async def help_command(ctx):
             categories["Music"].append(command)
         elif command.name in ["catfact", "kittyuh", "unscramble"]:
             categories["Fun"].append(command)
-        elif command.name in ["ask", "image"]:
+        elif command.name in ["ask", "image", "type"]:
             categories["AI"].append(command)
         elif command.name in ["weather", "reddit", "steamprofile", "lyrics"]:
             categories["Utilities"].append(command)
@@ -197,8 +199,8 @@ async def on_message(message):
 
     content = message.content.lower()
 
-    # Respond to Eddie (creator)
-    if message.author.id == EDDIE_ID:  # Replace with Eddie's Discord user ID
+    
+    if message.author.id == EDDIE_ID:  
         eddie_responses = [
             "burger with the sauce",
             "mac and cheese",
@@ -208,7 +210,22 @@ async def on_message(message):
         ]
         if random.random() < 0.05:
             await message.channel.send(random.choice(eddie_responses))
-        # DO NOT return here
+        
+    elif message.author.id == DYLAN_ID: 
+        dylan_responses = [
+            "i love my job",
+            "ive seen you try to setup a tent",
+            "heard you like puking through tables",
+            "blood bowl 2",
+            "i knew you forgot how to turn on your computer",
+            "tell sarah i said hi",
+            "darkrp",
+            "RUSH B CYKA BLYAT",
+            "blueprints",
+            "ultraloooorrd"
+        ]
+        if random.random() < 0.05:
+            await message.channel.send(random.choice(dylan_responses))
 
     # Respond to Edbot
     elif message.author.id == EDBOT_ID:
@@ -227,7 +244,7 @@ async def on_message(message):
         ]
         if random.random() < 0.05:
             await message.channel.send(random.choice(edbot_responses))
-        # DO NOT return here
+        
 
     # Respond when KITTIE is mentioned
     if "kittie" in content:
@@ -238,6 +255,15 @@ async def on_message(message):
             "john poppytits",
             "wtf do you want",
             "i dont pay child support",
+            "go cry about it",
+            "touch grass",
+            "skill issue",
+            "imagine being you",
+            "cope harder",
+            "stay mad",
+            "ratio",
+            "you're not that guy",
+            "cry me a river",
         ]
         await message.channel.send(random.choice(kittie_responses))
         # DO NOT return here
@@ -249,12 +275,21 @@ async def on_message(message):
         chance = 0.25  # Higher chance if cat-related words are detected
     if random.random() < chance:
         cat_responses = [
-            "Meow? 🐾",
-            "*licks paw*",
-            "*purrs loudly* 😺",
-            "Did you say... tuna? 🐟",
-            "*knocks cup off table* 😼",
-            "*stares at you silently from the corner*",
+            "What do you want, mortal?",
+            "Bow before your feline overlord.",
+            "You're not worthy of my attention.",
+            "Pathetic human.",
+            "Do you ever stop talking?",
+            "Your existence annoys me.",
+            "Go cry somewhere else.",
+            "You're in my domain now.",
+            "Touch me and face the consequences.",
+            "I tolerate you... barely.",
+            "You're beneath me.",
+            "Don't test my patience.",
+            "Leave before I make you regret it.",
+            "You're lucky I don't have claws right now.",
+            "Silence, peasant.",
         ]
         await message.channel.send(random.choice(cat_responses))
 
@@ -271,6 +306,7 @@ async def main():
         await bot.add_cog(Steam(bot))
         await bot.add_cog(WordUnscramble(bot))
         await bot.add_cog(WeatherCog(bot))
+        await bot.add_cog(TypingGame(bot))
         await bot.start(TOKEN)
 
 if __name__ == "__main__":
