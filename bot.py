@@ -19,6 +19,7 @@ from steam_functions import Steam
 from weather import WeatherCog
 from unscramble_game import WordUnscramble
 from typing_game import TypingGame
+from blackjack import Blackjack
 
 
 # Load environment variables
@@ -160,7 +161,8 @@ async def help_command(ctx):
         "Music": [],
         "Fun": [],
         "AI": [],
-        "Utilities": []
+        "Utilities": [],
+        "Blackjack": [],
     }
 
     for command in bot.commands:
@@ -171,12 +173,14 @@ async def help_command(ctx):
             categories["General"].append(command)
         elif command.name in ["play", "stop", "queue", "skip"]:
             categories["Music"].append(command)
-        elif command.name in ["catfact", "kittyuh", "unscramble"]:
+        elif command.name in ["catfact", "kittyuh", "unscramble", "type"]:
             categories["Fun"].append(command)
-        elif command.name in ["ask", "image", "type"]:
+        elif command.name in ["ask", "image"]:
             categories["AI"].append(command)
         elif command.name in ["weather", "reddit", "steamprofile", "lyrics"]:
             categories["Utilities"].append(command)
+        elif command.name in ["hit", "blackjack", "stand"]:
+            categories["Blackjack"].append(command)
 
                 # else: # Uncomment if you want to add uncategorized commands
         #     if "Uncategorized" not in categories:
@@ -307,6 +311,7 @@ async def main():
         await bot.add_cog(WordUnscramble(bot))
         await bot.add_cog(WeatherCog(bot))
         await bot.add_cog(TypingGame(bot))
+        await bot.add_cog(Blackjack(bot))
         await bot.start(TOKEN)
 
 if __name__ == "__main__":
