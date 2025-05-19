@@ -27,6 +27,8 @@ from rush_b import RushB
 from roulette import Roulette
 from currency import Currency
 from theme import Theme
+from haiku import Haiku
+from roast import ComplimentRoast
 
 
 # Load environment variables
@@ -181,9 +183,9 @@ async def help_command(ctx):
             categories["General"].append(command)
         elif command.name in ["play", "stop", "queue", "skip", "theme"]:
             categories["Music"].append(command)
-        elif command.name in ["catfact", "kittyuh", "unscramble", "type", "dog", "cat", "joke", "rushb", "roulette"]:
+        elif command.name in ["catfact", "kittyuh", "unscramble", "type", "dog", "cat", "joke", "rushb", "roulette", "haiku"]:
             categories["Fun"].append(command)
-        elif command.name in ["ask", "image"]:
+        elif command.name in ["ask", "image", "roast", "compliment"]:
             categories["AI"].append(command)
         elif command.name in ["weather", "reddit", "steamprofile", "lyrics"]:
             categories["Utilities"].append(command)
@@ -339,6 +341,8 @@ async def main():
         await bot.add_cog(RushB(bot))
         await bot.add_cog(Roulette(bot))
         await bot.add_cog(Theme(bot))
+        await bot.add_cog(Haiku(bot))
+        await bot.add_cog(ComplimentRoast(bot))
         await bot.start(TOKEN)
 
 if __name__ == "__main__":
