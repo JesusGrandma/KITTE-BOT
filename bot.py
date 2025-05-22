@@ -29,7 +29,8 @@ from currency import Currency
 from theme import Theme
 from haiku import Haiku
 from roast import ComplimentRoast
-
+from last_seen import LastSeen
+from sokoban import Sokoban
 
 # Load environment variables
 load_dotenv()
@@ -46,6 +47,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.voice_states = True
 intents.members = True
+intents.presences = True
 
 bot = commands.Bot(command_prefix="/", intents=intents, help_command=None)
 start_time = time.time()
@@ -173,13 +175,14 @@ async def help_command(ctx):
         "Utilities": [],
         "Blackjack": [],
         "Currency": [],
+        "Sokoban": []
     }
 
     for command in bot.commands:
         if command.hidden:
             continue
         # Categorize commands based on their name or purpose
-        if command.name in ["ping", "status", "info", "leave"]:
+        if command.name in ["ping", "status", "info", "leave", "lastseen"]:
             categories["General"].append(command)
         elif command.name in ["play", "stop", "queue", "skip", "theme"]:
             categories["Music"].append(command)
@@ -193,6 +196,8 @@ async def help_command(ctx):
             categories["Blackjack"].append(command)
         elif command.name in ["balance", "give"]:
             categories ["Currency"].append(command)
+        elif command.name in ["move", "sokobaninfo", "sokoban"]:
+            categories ["Sokoban"].append(command)
 
                 # else: # Uncomment if you want to add uncategorized commands
         #     if "Uncategorized" not in categories:
@@ -343,6 +348,8 @@ async def main():
         await bot.add_cog(Theme(bot))
         await bot.add_cog(Haiku(bot))
         await bot.add_cog(ComplimentRoast(bot))
+        await bot.add_cog(LastSeen(bot))
+        await bot.add_cog(Sokoban(bot))
         await bot.start(TOKEN)
 
 if __name__ == "__main__":
