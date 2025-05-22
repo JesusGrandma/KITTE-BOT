@@ -1,57 +1,57 @@
 import discord
 from discord.ext import commands
+import sqlite3
 from datetime import datetime
-import aiosqlite
-import asyncio
-
-DB_FILE = "lastseen.db"
 
 class LastSeen(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.bot.loop.create_task(self.init_db())
+        self.conn = sqlite3.connect("lastseen.db")
+        self.cursor = self.conn.cursor()
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS last_seen (
+                user_id INTEGER PRIMARY KEY,
+                timestamp TEXT
+            )
+        """)
+        self.conn.commit()
 
-    async def init_db(self):
-        async with aiosqlite.connect(DB_FILE) as db:
-            await db.execute('''
-                CREATE TABLE IF NOT EXISTS last_seen (
-                    user_id INTEGER PRIMARY KEY,
-                    timestamp TEXT
-                )
-            ''')
-            await db.commit()
+    def update_online_time(self, user_id):
+        timestamp = datetime.utcnow().isoformat()
+        self.cursor.execute(
+            "REPLACE INTO last_seen (user_id, timestamp) VALUES (?, ?)",
+            (user_id, timestamp)
+        )
+        self.conn.commit()
+
+    def get_online_time(self, user_id):
+        self.cursor.execute(
+            "SELECT timestamp FROM last_seen WHERE user_id = ?",
+            (user_id,)
+        )
+        row = self.cursor.fetchone()
+        return datetime.fromisoformat(row[0]) if row else None
 
     @commands.Cog.listener()
-    async def on_member_update(self, before, after):
-        # Only act if status changed to offline
-        if before.status != discord.Status.offline and after.status == discord.Status.offline:
-            user_id = after.id
-            now = datetime.utcnow().isoformat()
-            async with aiosqlite.connect(DB_FILE) as db:
-                await db.execute(
-                    "REPLACE INTO last_seen (user_id, timestamp) VALUES (?, ?)",
-                    (user_id, now)
-                )
-                await db.commit()
+    async def on_presence_update(self, before, after):
+        if before.status != after.status and after.status == discord.Status.online:
+            print(f"Updating last seen for {after.display_name} ({after.id})")  # For debugging
+            self.update_online_time(after.id)
 
     @commands.command()
-    async def lastseen(self, ctx, member: discord.Member):
-        async with aiosqlite.connect(DB_FILE) as db:
-            async with db.execute(
-                "SELECT timestamp FROM last_seen WHERE user_id = ?", (member.id,)
-            ) as cursor:
-                row = await cursor.fetchone()
-                if row:
-                    last_seen_time = datetime.fromisoformat(row[0])
-                    delta = datetime.utcnow() - last_seen_time
-                    days = delta.days
-                    hours, remainder = divmod(delta.seconds, 3600)
-                    minutes = remainder // 60
-                    await ctx.send(
-                        f"{member.display_name} was last seen {days}d {hours}h {minutes}m ago."
-                    )
-                else:
-                    await ctx.send(f"I haven’t seen {member.display_name} go offline yet.")
+    async def lastseen(self, ctx, member: discord.Member = None):
+        member = member or ctx.author
+        seen_time = self.get_online_time(member.id)
+        if seen_time:
+            delta = datetime.utcnow() - seen_time
+            days = delta.days
+            hours, remainder = divmod(delta.seconds, 3600)
+            minutes = remainder // 60
+            await ctx.send(
+                f"📡 {member.display_name} was last **online** {days}d {hours}h {minutes}m ago."
+            )
+        else:
+            await ctx.send(f"❓ I haven’t seen {member.display_name} online yet.")
 
-def setup(bot):
-    bot.add_cog(LastSeen(bot))
+async def setup(bot):
+    await bot.add_cog(LastSeen(bot))
