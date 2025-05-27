@@ -34,8 +34,8 @@ class WeatherCog(commands.Cog):
         location = data['location']['name']
         country = data['location']['country']
         condition = data['current']['condition']['text']
-        temp_c = data['current']['temp_c']
-        feelslike_c = data['current']['feelslike_c']
+        temp_f = data['current']['temp_f']
+        feelslike_f = data['current']['feelslike_f']
         humidity = data['current']['humidity']
         wind_kph = data['current']['wind_kph']
 
@@ -44,7 +44,7 @@ class WeatherCog(commands.Cog):
             description=condition,
             color=discord.Color.blue()
         )
-        embed.add_field(name="Temperature", value=f"{temp_c}°C (Feels like {feelslike_c}°C)")
+        embed.add_field(name="Temperature", value=f"{temp_f}°F (Feels like {feelslike_f}°F)")
         embed.add_field(name="Humidity", value=f"{humidity}%")
         embed.add_field(name="Wind", value=f"{wind_kph} kph")
         embed.set_thumbnail(url=f"http:{data['current']['condition']['icon']}")
