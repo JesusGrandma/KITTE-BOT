@@ -31,6 +31,7 @@ from haiku import Haiku
 from roast import ComplimentRoast
 from last_seen import LastSeen
 from sokoban import Sokoban
+from virtualplant import VirtualPlant
 
 # Load environment variables
 load_dotenv()
@@ -175,7 +176,8 @@ async def help_command(ctx):
         "Utilities": [],
         "Blackjack": [],
         "Currency": [],
-        "Sokoban": []
+        "Sokoban": [],
+        "Plants": []
     }
 
     for command in bot.commands:
@@ -198,6 +200,8 @@ async def help_command(ctx):
             categories ["Currency"].append(command)
         elif command.name in ["move", "sokobaninfo", "sokoban"]:
             categories ["Sokoban"].append(command)
+        elif command.name in ["ptalk", "pleaderboard", "pcustomize", "pname", "pstatus", "pfertilize", "psunlight", "pwater", "padopt", "pinfo"]:
+            categories ["Plants"].append(command)
 
                 # else: # Uncomment if you want to add uncategorized commands
         #     if "Uncategorized" not in categories:
@@ -350,6 +354,7 @@ async def main():
         await bot.add_cog(ComplimentRoast(bot))
         await bot.add_cog(LastSeen(bot))
         await bot.add_cog(Sokoban(bot))
+        await bot.add_cog(VirtualPlant(bot))
         await bot.start(TOKEN)
 
 if __name__ == "__main__":

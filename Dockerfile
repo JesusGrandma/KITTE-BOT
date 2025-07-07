@@ -7,12 +7,14 @@ RUN apt-get update && apt-get install -y \
     libnacl-dev \
     python3-dev \
     gcc \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN python3.11 -m pip install -U git+https://github.com/Rapptz/discord.py
 
 COPY . .
 

@@ -71,6 +71,11 @@ class Music(commands.Cog):
         if not await self.join_vc(ctx):
             return
 
+        # Ensure voice_client is connected before proceeding
+        if not self.voice_client or not self.voice_client.is_connected():
+            await ctx.send("❌ Not connected to voice. Please try again.")
+            return
+
         try:
             audio_url, page_url, title = await self.get_youtube_audio(query)
             logger.info(f"Playing: {title} ({audio_url})")
