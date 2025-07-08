@@ -20,13 +20,13 @@ class ComplimentRoast(commands.Cog):
         )
         return response.choices[0].message.content.strip()
 
-    @commands.command()
+    @commands.command(help="Roast a server member")
     async def roast(self, ctx, member: discord.Member):
         prompt = f"Roast for someone named {member.display_name}."
         roast = await self.generate_response(prompt)
         await ctx.send(f"{member.mention} {roast}")
 
-    @commands.command()
+    @commands.command(help="Compliment a server member")
     async def compliment(self, ctx, member: discord.Member):
         prompt = f"Compliment for someone named {member.display_name}."
         compliment = await self.generate_response(prompt)
