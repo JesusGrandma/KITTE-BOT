@@ -19,7 +19,7 @@ class Theme(commands.Cog):
         voice_client = await vc.connect()
 
         # Check audio file
-        audio_file = "theme_song/Mac.mp3"
+        audio_file = "theme_song/KITTIE.mp3"
         if not os.path.exists(audio_file):
             await ctx.send("❌ Audio file not found.")
             await voice_client.disconnect()
