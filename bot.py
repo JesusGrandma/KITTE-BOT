@@ -189,7 +189,7 @@ async def help_command(ctx):
             categories["General"].append(command)
         elif command.name in ["play", "stop", "queue", "skip", "theme"]:
             categories["Music"].append(command)
-        elif command.name in ["catfact", "kittyuh", "unscramble", "type", "dog", "cat", "joke", "rushb", "roulette", "haiku", "bengif"]:
+        elif command.name in ["catfact", "kittyuh", "unscramble", "type", "dog", "cat", "joke", "rushb", "roulette", "haiku", "throat", "nip", "dmonkey"]:
             categories["Fun"].append(command)
         elif command.name in ["ask", "image", "roast", "compliment"]:
             categories["AI"].append(command)
