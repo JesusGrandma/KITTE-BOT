@@ -32,6 +32,7 @@ from roast import ComplimentRoast
 from last_seen import LastSeen
 from sokoban import Sokoban
 from virtualplant import VirtualPlant
+from bengif import GifCommands
 
 # Load environment variables
 load_dotenv()
@@ -177,7 +178,7 @@ async def help_command(ctx):
         "Blackjack": [],
         "Currency": [],
         "Sokoban": [],
-        "Plants": []
+        "Plants": [],
     }
 
     for command in bot.commands:
@@ -188,7 +189,7 @@ async def help_command(ctx):
             categories["General"].append(command)
         elif command.name in ["play", "stop", "queue", "skip", "theme"]:
             categories["Music"].append(command)
-        elif command.name in ["catfact", "kittyuh", "unscramble", "type", "dog", "cat", "joke", "rushb", "roulette", "haiku"]:
+        elif command.name in ["catfact", "kittyuh", "unscramble", "type", "dog", "cat", "joke", "rushb", "roulette", "haiku", "bengif"]:
             categories["Fun"].append(command)
         elif command.name in ["ask", "image", "roast", "compliment"]:
             categories["AI"].append(command)
@@ -355,6 +356,7 @@ async def main():
         await bot.add_cog(LastSeen(bot))
         await bot.add_cog(Sokoban(bot))
         await bot.add_cog(VirtualPlant(bot))
+        await bot.add_cog(GifCommands(bot))
         await bot.start(TOKEN)
 
 if __name__ == "__main__":
