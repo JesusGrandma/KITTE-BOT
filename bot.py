@@ -34,6 +34,7 @@ from last_seen import LastSeen
 from sokoban import Sokoban
 from virtualplant import VirtualPlant
 from gif import GifCommands
+from serverstats import ServerStats
 
 # Load environment variables
 load_dotenv()
@@ -185,7 +186,7 @@ async def help_command(ctx):
     for command in bot.commands:
         if command.hidden:
             continue
-        if command.name in ["ping", "status", "info", "leave", "lastseen"]:
+        if command.name in ["ping", "status", "info", "leave", "lastseen", "serverstats"]:
             categories["General"].append(command)
         elif command.name in ["play", "stop", "queue", "skip", "theme"]:
             categories["Music"].append(command)
@@ -398,6 +399,7 @@ async def main():
         await bot.add_cog(Sokoban(bot))
         await bot.add_cog(VirtualPlant(bot))
         await bot.add_cog(GifCommands(bot))
+        await bot.add_cog(ServerStats(bot))
         await bot.start(TOKEN)
 
 if __name__ == "__main__":
