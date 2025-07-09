@@ -16,7 +16,7 @@ class GifCommands(commands.Cog):
         await ctx.send(gif_url)
 
     @commands.command(name="throat", help="dave")
-    async def dance(self, ctx):
+    async def throat(self, ctx):
         gif_url = "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExY295dmxuanNzaGkwZXp1cjdiMXFsMDY5emppYjJscGhwd3kzYTFleCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ViJwRZ8bvMTT73YAMC/giphy.gif"  
         await ctx.send(gif_url)
 
