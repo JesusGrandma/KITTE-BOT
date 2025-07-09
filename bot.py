@@ -32,7 +32,7 @@ from roast import ComplimentRoast
 from last_seen import LastSeen
 from sokoban import Sokoban
 from virtualplant import VirtualPlant
-from bengif import GifCommands
+from gif import GifCommands
 
 # Load environment variables
 load_dotenv()
