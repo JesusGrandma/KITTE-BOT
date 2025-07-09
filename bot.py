@@ -7,6 +7,7 @@ import time
 import platform
 import asyncio
 import aiohttp
+import math
 
 # Local imports
 from image_gen import generate_image
@@ -151,24 +152,24 @@ async def ask(ctx, *, prompt):
 
 @bot.command(name="image", help="Generate an AI image from a prompt")
 async def imagine(ctx, *, prompt):
-    await ctx.send(f"Generating image for: {prompt}. Please wait as this could take a few seconds.")
+    # Send the "generating" message and keep a reference to it
+    status_msg = await ctx.send(f"Generating image for: {prompt}. Please wait as this could take a few seconds.")
     image_url = generate_image(prompt)
     if image_url:
         await ctx.send(image_url)
     else:
         await ctx.send("❌ Failed to generate image.")
+    # Delete the "generating" message after image is sent
+    try:
+        await status_msg.delete()
+    except Exception:
+        pass
 
 
 # Help Command
 
 @bot.command(name="help", help="Shows a list of available commands")
 async def help_command(ctx):
-    embed = discord.Embed(
-        title="🐱 KITTIE-BOT Commands",
-        description="Here are the available commands grouped by category:",
-        color=discord.Color.purple()
-    )
-    # Group commands by category
     categories = {
         "General": [],
         "Music": [],
@@ -184,37 +185,77 @@ async def help_command(ctx):
     for command in bot.commands:
         if command.hidden:
             continue
-        # Categorize commands based on their name or purpose
         if command.name in ["ping", "status", "info", "leave", "lastseen"]:
             categories["General"].append(command)
         elif command.name in ["play", "stop", "queue", "skip", "theme"]:
             categories["Music"].append(command)
-        elif command.name in ["catfact", "kittyuh", "unscramble", "type", "dog", "cat", "joke", "rushb", "roulette", "haiku", "throat", "nip", "dmonkey"]:
+        elif command.name in ["catfact", "kittyuh", "unscramble", "type", "dog", "cat", "joke", "rushb", "roulette", "haiku", "throat", "nip", "dmonkey", "dance"]:
             categories["Fun"].append(command)
-        elif command.name in ["ask", "image", "roast", "compliment", "throat", "nip", "dmonkey"]:
+        elif command.name in ["ask", "image", "roast", "compliment"]:
             categories["AI"].append(command)
         elif command.name in ["weather", "reddit", "steamprofile", "lyrics"]:
             categories["Utilities"].append(command)
         elif command.name in ["hit", "blackjack", "stand"]:
             categories["Blackjack"].append(command)
         elif command.name in ["balance", "give"]:
-            categories ["Currency"].append(command)
+            categories["Currency"].append(command)
         elif command.name in ["move", "sokobaninfo", "sokoban"]:
-            categories ["Sokoban"].append(command)
+            categories["Sokoban"].append(command)
         elif command.name in ["ptalk", "pleaderboard", "pcustomize", "pname", "pstatus", "pfertilize", "psunlight", "pwater", "padopt", "pinfo"]:
-            categories ["Plants"].append(command)
+            categories["Plants"].append(command)
 
-                # else: # Uncomment if you want to add uncategorized commands
-        #     if "Uncategorized" not in categories:
-        #         categories["Uncategorized"] = []
-        #     categories["Uncategorized"].append(command)
-    # Add commands to the embed
-    for category, commands_list in categories.items():
-        if commands_list:
-            value = "\n".join(f"/{cmd.name} - {cmd.help or 'No description'}" for cmd in commands_list)
-            embed.add_field(name=f"**{category}**", value=value, inline=False)
-    embed.set_footer(text="Use / to execute a command.")
-    await ctx.send(embed=embed)
+    # Prepare pages (2 categories per page, adjust as needed)
+    category_items = list(categories.items())
+    categories_per_page = 2
+    pages = []
+    for i in range(0, len(category_items), categories_per_page):
+        embed = discord.Embed(
+            title="🐱 KITTIE-BOT Commands",
+            description="Here are the available commands grouped by category:",
+            color=discord.Color.purple()
+        )
+        for category, commands_list in category_items[i:i+categories_per_page]:
+            if commands_list:
+                value = "\n".join(f"/{cmd.name} - {cmd.help or 'No description'}" for cmd in commands_list)
+                embed.add_field(name=f"**{category}**", value=value, inline=False)
+        embed.set_footer(text=f"Page {len(pages)+1}/{math.ceil(len(category_items)/categories_per_page)} • Use ⬅️ and ➡️ to navigate.")
+        pages.append(embed)
+
+    # Send first page
+    page = 0
+    message = await ctx.send(embed=pages[page])
+    if len(pages) == 1:
+        return
+
+    await message.add_reaction("⬅️")
+    await message.add_reaction("➡️")
+
+    def check(reaction, user):
+        return (
+            user == ctx.author
+            and reaction.message.id == message.id
+            and str(reaction.emoji) in ["⬅️", "➡️"]
+        )
+
+    while True:
+        try:
+            reaction, user = await bot.wait_for("reaction_add", timeout=10.0, check=check)
+            if str(reaction.emoji) == "➡️":
+                page = (page + 1) % len(pages)
+                await message.edit(embed=pages[page])
+                await message.remove_reaction(reaction, user)
+            elif str(reaction.emoji) == "⬅️":
+                page = (page - 1) % len(pages)
+                await message.edit(embed=pages[page])
+                await message.remove_reaction(reaction, user)
+        except asyncio.TimeoutError:
+            break
+
+    # Delete the help message after timeout
+    try:
+        await message.delete()
+    except Exception:
+        pass
 
 # Trolling Features
 
