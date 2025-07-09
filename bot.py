@@ -317,7 +317,7 @@ async def on_message(message):
         
 
     # Respond when KITTIE is mentioned
-    if "kittie" in content:
+    if "kittie" in content or bot.user in message.mentions:
         kittie_responses = [
             "what",
             "Meow",

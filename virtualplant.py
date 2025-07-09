@@ -219,12 +219,12 @@ class VirtualPlant(commands.Cog):
             )
         await ctx.send(leaderboard_msg)
 
-    @commands.command(name='ptalk', help="Talk to your plant. Usage: !ptalk [message]")
+    @commands.command(name='ptalk', help="Talk to your plant. Usage: /ptalk [message]")
     async def talk(self, ctx, *, message: str):
         """Talk to your plant and see how it feels."""
         user_id = ctx.author.id
         if user_id not in self.user_plants:
-            await ctx.send("You don't have a plant yet. Use !padopt to get one.")
+            await ctx.send("You don't have a plant yet. Use /padopt to get one.")
             return
         msg_lower = message.lower()
         if any(word in msg_lower for word in ['love', 'nice', 'good', 'happy', 'great']):
@@ -236,7 +236,7 @@ class VirtualPlant(commands.Cog):
         else:
             await ctx.send(f"{self.user_plants[user_id].name} doesn't understand, but appreciates your attention. 🌿")
 
-    @commands.command(name='pinfo', help="Get info about the VirtualPlant cog. Usage: !pinfo")
+    @commands.command(name='pinfo', help="Get info about the VirtualPlant cog. Usage: /pinfo")
     async def pinfo(self, ctx):
         """Get information about the VirtualPlant cog and its commands."""
         ascii_art = (
@@ -258,16 +258,16 @@ class VirtualPlant(commands.Cog):
             "Adopt, care for, and customize your own virtual plant!\n\n"
             f"**Available Plant Types:** {', '.join(self.PLANT_TYPES)}\n\n"
             "**Commands:**\n"
-            "`!padopt [plant_type]` — Adopt a new plant.\n"
-            "`!pwater` — Water your plant.\n"
-            "`!psunlight` — Give sunlight to your plant.\n"
-            "`!pfertilize` — Fertilize your plant.\n"
-            "`!pstatus` — Check your plant's status.\n"
-            "`!pname [name]` — Name your plant.\n"
-            "`!pcustomize [accessory]` — Add an accessory.\n"
-            "`!pleaderboard` — See the plant leaderboard.\n"
-            "`!ptalk [message]` — Talk to your plant.\n"
-            "`!pinfo` — Show this info message."
+            "`/padopt [plant_type]` — Adopt a new plant.\n"
+            "`/pwater` — Water your plant.\n"
+            "`/psunlight` — Give sunlight to your plant.\n"
+            "`/pfertilize` — Fertilize your plant.\n"
+            "`/pstatus` — Check your plant's status.\n"
+            "`/pname [name]` — Name your plant.\n"
+            "`/pcustomize [accessory]` — Add an accessory.\n"
+            "`/pleaderboard` — See the plant leaderboard.\n"
+            "`/ptalk [message]` — Talk to your plant.\n"
+            "`/pinfo` — Show this info message."
         )
         await ctx.send(description)
 
