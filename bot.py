@@ -119,7 +119,7 @@ async def info(ctx):
     except discord.Forbidden:
         await ctx.send("❌ I couldn't send you a DM. Please check your privacy settings.")
 
-@bot.command(name="invite", help="Get the invite link to add KITTIE-BOT to your server")
+@bot.command(name="invite", help="Get the invite link to add KITTE-BOT to your server")
 async def invite(ctx):
     client_id = bot.user.id
     permissions = 8  # Administrator; adjust as needed
