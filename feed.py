@@ -23,7 +23,6 @@ class CatFeeder(commands.Cog):
         prompt = (
             f"You are a very sassy, witty, and sarcastic cat. A human tries to feed you '{item}'. "
             "If the item is spicy, or not actually food, respond with a clever, mean, or disgusted remark (1-2 sentences). "
-            "If the item is any kind of normal, safe food (like chicken, tuna, or cat food), respond with a playful, mischievous, or excited cat-like remark (1-2 sentences), but keep your wit and sass. "
             "Respond with only one short, clever message."
         )
 
