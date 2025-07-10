@@ -95,7 +95,7 @@ async def status(ctx):
     uptime = time.strftime("%H:%M:%S", time.gmtime(uptime_seconds))
     latency = round(bot.latency * 1000)
     server_count = len(bot.guilds)
-    embed = discord.Embed(title="KITTIE-BOT Status", color=discord.Color.purple())
+    embed = discord.Embed(title="KITTE-BOT Status", color=discord.Color.purple())
     embed.add_field(name="Uptime", value=uptime, inline=True)
     embed.add_field(name="Latency", value=f"{latency}ms", inline=True)
     embed.add_field(name="Servers", value=f"{server_count}", inline=True)
@@ -106,7 +106,7 @@ async def status(ctx):
 @bot.command(name="info", help="Shows bot creator and helpful links")
 async def info(ctx):
     embed = discord.Embed(
-        title="About KITTIE",
+        title="About KITTE",
         description="Cat bot meow",
         color=discord.Color.purple()
     )
@@ -126,7 +126,7 @@ async def invite(ctx):
     invite_url = f"https://discord.com/oauth2/authorize?client_id=1369053954243301387&permissions=8&integration_type=0&scope=bot"
     embed = discord.Embed(
         title="Invite KITTIE-BOT",
-        description=f"[Click here to invite KITTIE-BOT to your server!]({invite_url})",
+        description=f"[Click here to invite KITTE-BOT to your server!]({invite_url})",
         color=discord.Color.purple()
     )
     await ctx.send(embed=embed)
@@ -138,7 +138,7 @@ async def catfact(ctx):
     fact = get_random_cat_fact()
     await ctx.send(f"**Cat Fact:** {fact}")
 
-@bot.command(name="kittyuh", help="Sends a random cat picture")
+@bot.command(name="kitty", help="Sends a random cat picture")
 async def cat(ctx):
     folder = "cat-pics"
     if not os.path.exists(folder):
@@ -224,7 +224,7 @@ async def help_command(ctx):
     pages = []
     for i in range(0, len(category_items), categories_per_page):
         embed = discord.Embed(
-            title="🐱 KITTIE-BOT Commands",
+            title="🐱 KITTE-BOT Commands",
             description="Here are the available commands grouped by category:",
             color=discord.Color.purple()
         )
