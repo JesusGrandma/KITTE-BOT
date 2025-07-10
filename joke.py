@@ -8,7 +8,7 @@ class RandomJoke(commands.Cog):
 
     @commands.command(name="joke", help="Tells a random joke")
     async def joke(self, ctx):
-        url = "https://v2.jokeapi.dev/joke/Miscellaneous,Dark,Pun?blacklistFlags=nsfw,racist,sexist"
+        url = "https://v2.jokeapi.dev/joke/Dark"
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as resp:

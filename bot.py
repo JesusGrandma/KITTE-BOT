@@ -35,6 +35,7 @@ from sokoban import Sokoban
 from virtualplant import VirtualPlant
 from gif import GifCommands
 from serverstats import ServerStats
+from feed import CatFeeder
 
 # Load environment variables
 load_dotenv()
@@ -192,7 +193,7 @@ async def help_command(ctx):
             categories["Music"].append(command)
         elif command.name in ["catfact", "kittyuh", "unscramble", "type", "dog", "cat", "joke", "rushb", "roulette", "haiku", "throat", "nip", "dmonkey", "dance"]:
             categories["Fun"].append(command)
-        elif command.name in ["ask", "image", "roast", "compliment"]:
+        elif command.name in ["ask", "image", "roast", "compliment", "feed"]:
             categories["AI"].append(command)
         elif command.name in ["weather", "reddit", "steamprofile", "lyrics"]:
             categories["Utilities"].append(command)
@@ -317,25 +318,71 @@ async def on_message(message):
         
 
     # Respond when KITTIE is mentioned
-    if "kittie" in content or bot.user in message.mentions:
-        kittie_responses = [
-            "what",
-            "Meow",
-            "plz stop",
-            "john poppytits",
-            "wtf do you want",
-            "i dont pay child support",
-            "go cry about it",
-            "touch grass",
-            "skill issue",
-            "imagine being you",
-            "cope harder",
-            "stay mad",
-            "ratio",
-            "you're not that guy",
-            "cry me a river",
-        ]
-        await message.channel.send(random.choice(kittie_responses))
+    if "kitte" in content or bot.user in message.mentions:
+        # 20% chance to use AI, 80% normal response (adjust as you like)
+        if random.random() < 0.2:
+            try:
+                ai_prompt = (
+                    "You are a very sassy, witty, and sarcastic cat. "
+                    "Reply to this human who just mentioned you in a Discord server. "
+                    "Be clever, funny, and mean, but keep it short."
+                )
+                # Optionally, you can add the message content for more context:
+                ai_prompt += f"\n\nHuman said: '{message.content}'"
+                ai_response = await asyncio.to_thread(ask_cat_gpt, ai_prompt)
+                await message.channel.send(ai_response)
+            except Exception as e:
+                print("AI error:", e)
+                # fallback to normal response if AI fails
+                kittie_responses = [
+                    "what",
+                    "Meow",
+                    "plz stop",
+                    "john poppytits",
+                    "wtf do you want",
+                    "i dont pay child support",
+                    "go cry about it",
+                    "touch grass",
+                    "skill issue",
+                    "imagine being you",
+                    "cope harder",
+                    "stay mad",
+                    "ratio",
+                    "you're not that guy",
+                    "cry me a river",
+                    "shawn harris",
+                    "i have a better beard than you",
+                    "i heard you pee yourself",
+                    "cshoes",
+                    "i got my one",
+                    "you like destiny 2?"
+                ]
+                await message.channel.send(random.choice(kittie_responses))
+        else:
+            kittie_responses = [
+                "what",
+                "Meow",
+                "plz stop",
+                "john poppytits",
+                "wtf do you want",
+                "i dont pay child support",
+                "go cry about it",
+                "touch grass",
+                "skill issue",
+                "imagine being you",
+                "cope harder",
+                "stay mad",
+                "ratio",
+                "you're not that guy",
+                "cry me a river",
+                "shawn harris",
+                "i have a better beard than you",
+                "i heard you pee yourself",
+                "cshoes",
+                "i got my one",
+                "you like destiny 2?"
+            ]
+            await message.channel.send(random.choice(kittie_responses))
         # DO NOT return here
 
     # General cat-related responses
@@ -400,6 +447,7 @@ async def main():
         await bot.add_cog(VirtualPlant(bot))
         await bot.add_cog(GifCommands(bot))
         await bot.add_cog(ServerStats(bot))
+        await bot.add_cog(CatFeeder(bot))
         await bot.start(TOKEN)
 
 if __name__ == "__main__":
