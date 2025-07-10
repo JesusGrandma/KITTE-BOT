@@ -14,6 +14,8 @@ class Music(commands.Cog):
         self.music_playing = False
         self.last_activity_time = time.time()
         self.song_queue = []
+        self.loop_enabled = False  
+        self.current_song = None   
 
     async def join_vc(self, ctx):
         if ctx.author.voice:
@@ -92,9 +94,19 @@ class Music(commands.Cog):
             logger.error(f"Play error: {str(e)}")
             await ctx.send(f"❌ Error: {str(e)}")
 
+    @commands.command(name="loop", help="Toggle looping the current song")
+    async def loop(self, ctx):
+        """Toggle loop for the current song."""
+        self.loop_enabled = not self.loop_enabled
+        if self.loop_enabled:
+            await ctx.send("🔁 Loop enabled for the current song.")
+        else:
+            await ctx.send("⏹️ Loop disabled.")
+
     def _play_audio(self, ctx, audio_url, page_url, title):
         self.music_playing = True
         self.last_activity_time = time.time()
+        self.current_song = (audio_url, page_url, title)  # Track the current song
 
         ffmpeg_options = {
             'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
@@ -115,6 +127,13 @@ class Music(commands.Cog):
         if error:
             logger.error(f"Playback error: {error}")
             await ctx.send(f"❌ Playback error: {error}")
+
+        if self.loop_enabled and self.current_song:
+            # Replay the current song
+            audio_url, page_url, title = self.current_song
+            self._play_audio(ctx, audio_url, page_url, title)
+            await ctx.send(f"🔁 Replaying: [{title}]({page_url})")
+            return
 
         if self.song_queue:
             next_url, next_page, next_title = self.song_queue.pop(0)
