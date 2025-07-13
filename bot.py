@@ -36,6 +36,7 @@ from virtualplant import VirtualPlant
 from gif import GifCommands
 from serverstats import ServerStats
 from feed import CatFeeder
+from tts import TTSCog
 
 # Load environment variables
 load_dotenv()
@@ -205,7 +206,7 @@ async def help_command(ctx):
             categories["Music"].append(command)
         elif command.name in ["catfact", "kittyuh", "unscramble", "type", "dog", "cat", "joke", "rushb", "roulette", "haiku", "throat", "nip", "dmonkey", "dance"]:
             categories["Fun"].append(command)
-        elif command.name in ["ask", "image", "roast", "compliment", "feed"]:
+        elif command.name in ["ask", "image", "roast", "compliment", "feed", "ktts"]:
             categories["AI"].append(command)
         elif command.name in ["weather", "reddit", "steamprofile", "lyrics"]:
             categories["Utilities"].append(command)
@@ -368,6 +369,8 @@ async def on_message(message):
                     "cshoes",
                     "i got my one",
                     "you like destiny 2?"
+                    "charles casavant",
+                    "winston will eat you"
                 ]
                 await message.channel.send(random.choice(kittie_responses))
         else:
@@ -460,6 +463,7 @@ async def main():
         await bot.add_cog(GifCommands(bot))
         await bot.add_cog(ServerStats(bot))
         await bot.add_cog(CatFeeder(bot))
+        await bot.add_cog(TTSCog(bot))
         await bot.start(TOKEN)
 
 if __name__ == "__main__":
