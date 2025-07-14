@@ -75,7 +75,7 @@ class Music(commands.Cog):
 
         # Ensure voice_client is connected before proceeding
         if not self.voice_client or not self.voice_client.is_connected():
-            await ctx.send("❌ Not connected to voice. Please try again.")
+            await ctx.send("Not connected to voice. Please try again.")
             return
 
         try:
@@ -92,16 +92,16 @@ class Music(commands.Cog):
 
         except Exception as e:
             logger.error(f"Play error: {str(e)}")
-            await ctx.send(f"❌ Error: {str(e)}")
+            await ctx.send(f" Error: {str(e)}")
 
     @commands.command(name="loop", help="Toggle looping the current song")
     async def loop(self, ctx):
         """Toggle loop for the current song."""
         self.loop_enabled = not self.loop_enabled
         if self.loop_enabled:
-            await ctx.send("🔁 Loop enabled for the current song.")
+            await ctx.send("Loop enabled for the current song.")
         else:
-            await ctx.send("⏹️ Loop disabled.")
+            await ctx.send("Loop disabled.")
 
     def _play_audio(self, ctx, audio_url, page_url, title):
         self.music_playing = True
@@ -132,13 +132,13 @@ class Music(commands.Cog):
             # Replay the current song
             audio_url, page_url, title = self.current_song
             self._play_audio(ctx, audio_url, page_url, title)
-            await ctx.send(f"🔁 Replaying: [{title}]({page_url})")
+            await ctx.send(f"Replaying: [{title}]({page_url})")
             return
 
         if self.song_queue:
             next_url, next_page, next_title = self.song_queue.pop(0)
             self._play_audio(ctx, next_url, next_page, next_title)
-            await ctx.send(f"▶️ Now playing: [{next_title}]({next_page})")
+            await ctx.send(f"Now playing: [{next_title}]({next_page})")
         else:
             await self.leave_vc()
 
@@ -149,24 +149,24 @@ class Music(commands.Cog):
             self.song_queue.clear()
             self.voice_client.stop()
             await self.leave_vc()
-            await ctx.send("⏹️ Stopped playback")
+            await ctx.send("Stopped playback")
         else:
-            await ctx.send("❌ Not playing anything")
+            await ctx.send("Not playing anything")
 
     @commands.command(name="skip", help="Skips to next song in the queue")
     async def skip(self, ctx):
         """Skip current track"""
         if self.voice_client and self.voice_client.is_playing():
             self.voice_client.stop()
-            await ctx.send("⏭️ Skipped current track")
+            await ctx.send("Skipped current track")
         else:
-            await ctx.send("❌ Nothing to skip")
+            await ctx.send("Nothing to skip")
 
     @commands.command(name="queue", help="Shows songs in queue")
     async def queue(self, ctx):
         """Show current queue"""
         if not self.song_queue:
-            await ctx.send("📭 Queue is empty")
+            await ctx.send("Queue is empty")
             return
 
         queue_list = "\n".join(

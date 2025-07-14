@@ -65,7 +65,7 @@ class TTSCog(commands.Cog):
                 audio_file,
                 executable='ffmpeg',
                 before_options='-loglevel panic',
-                options='-af "asetrate=44100*0.50,aresample=44100"'
+                options='-af "asetrate=44100*.90,aresample=44100"'
             )
             voice_client.play(audio_source)
 
@@ -76,7 +76,6 @@ class TTSCog(commands.Cog):
             # Disconnect and clean up
             await voice_client.disconnect()
             os.remove(audio_file)
-            await ctx.send("Audio played successfully!", ephemeral=True)
 
         except Exception as e:
             await ctx.send(f"An error occurred: {str(e)}", ephemeral=True)
