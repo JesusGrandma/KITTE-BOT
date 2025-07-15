@@ -16,7 +16,7 @@ from cogs.cat_facts import get_random_cat_fact
 from cogs.lyrics import Lyrics
 from cogs.music import Music
 from cogs.reddit_memes import RedditMemes
-from steam_functions import Steam
+from cogs.steam_functions import Steam
 from cogs.weather import WeatherCog
 from cogs.unscramble_game import WordUnscramble
 from cogs.typing_game import TypingGame
