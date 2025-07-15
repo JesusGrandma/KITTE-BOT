@@ -5,11 +5,7 @@ class ServerStats(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(
-        name="serverstats",
-        help="Displays statistics about the server, such as member count, online members, channels, and creation date.",
-        brief="Shows server statistics."
-    )
+    @commands.command(name="serverstats", help="Displays statistics about the server, such as member count, online members, channels, and creation date. Usage: /serverstats")
     async def serverstats(self, ctx):
         guild = ctx.guild
         total_members = guild.member_count

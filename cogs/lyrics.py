@@ -12,7 +12,7 @@ class Lyrics(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="lyrics", help="Get the lyrics of a song")
+    @commands.command(name="lyrics", help="Get the lyrics of a song. Usage: /lyrics <song name>")
     async def get_lyrics(self, ctx, *, query: str):
         try:
             song = genius.search_song(query)

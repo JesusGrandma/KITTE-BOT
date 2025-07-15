@@ -38,7 +38,7 @@ class LastSeen(commands.Cog):
             print(f"Updating last seen for {after.display_name} ({after.id})")  # For debugging
             self.update_online_time(after.id)
 
-    @commands.command()
+    @commands.command(name="lastseen", help="Show when a user was last online. Usage: /lastseen [user]")
     async def lastseen(self, ctx, member: discord.Member = None):
         member = member or ctx.author
         seen_time = self.get_online_time(member.id)

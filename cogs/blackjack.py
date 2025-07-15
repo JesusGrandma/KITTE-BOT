@@ -69,7 +69,7 @@ class Blackjack(commands.Cog):
         self.bot = bot
         self.games = {}  # Store ongoing games per user
 
-    @commands.command(name='blackjack')
+    @commands.command(name='blackjack', help="Start a new game of blackjack. Usage: /blackjack")
     async def start_blackjack(self, ctx):
         """Start a new game of blackjack."""
         self.games[ctx.author.id] = BlackjackGame()
@@ -77,7 +77,7 @@ class Blackjack(commands.Cog):
         msg = f"🎲 **Blackjack!**\n{game.get_status()}\nType `/hit` to draw or `/stand` to hold."
         await ctx.send(msg)
 
-    @commands.command(name='hit')
+    @commands.command(name='hit', help="Draw a card in blackjack. Usage: /hit")
     async def hit(self, ctx):
         """Draw a card."""
         game = self.games.get(ctx.author.id)
@@ -92,7 +92,7 @@ class Blackjack(commands.Cog):
             msg = f"{game.get_status()}\nType `/hit` or `/stand`."
         await ctx.send(msg)
 
-    @commands.command(name='stand')
+    @commands.command(name='stand', help="Stand and let the dealer play. Usage: /stand")
     async def stand(self, ctx):
         """Stand and let the dealer play."""
         game = self.games.get(ctx.author.id)

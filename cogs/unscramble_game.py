@@ -55,7 +55,7 @@ class WordUnscramble(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="unscramble", help="An unscramble game!")
+    @commands.command(name="unscramble", help="An unscramble game! Usage: /unscramble")
     async def unscramble(self, ctx):
         await ctx.send("KITTE will win, but lets play.")
         word = random.choice(WORDS)

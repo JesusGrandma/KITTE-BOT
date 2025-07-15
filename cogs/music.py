@@ -67,7 +67,7 @@ class Music(commands.Cog):
                 logger.error(f"YTDL Error: {str(e)}")
                 raise
 
-    @commands.command(name="play")
+    @commands.command(name="play", help="Play a song from YouTube. Usage: /play <song name or URL>")
     async def play(self, ctx, *, query: str):
         """Play audio from YouTube"""
         if not await self.join_vc(ctx):

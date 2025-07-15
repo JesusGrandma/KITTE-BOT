@@ -31,13 +31,13 @@ class Currency(commands.Cog):
         self.conn.commit()
         return balance
 
-    @commands.command()
+    @commands.command(name="balance", help="Check your or another user's coin balance. Usage: /balance [user]")
     async def balance(self, ctx, member: discord.Member = None):
         member = member or ctx.author
         bal = self.get_balance(member.id)
         await ctx.send(f"💰 {member.display_name} has **{bal}** coins.")
 
-    @commands.command()
+    @commands.command(name="give", help="Give coins to another user. Usage: /give <user> <amount>")
     async def give(self, ctx, member: discord.Member, amount: int):
         if amount <= 0:
             return await ctx.send("Amount must be positive.")

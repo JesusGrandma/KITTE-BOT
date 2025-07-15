@@ -37,6 +37,8 @@ from cogs.gif import GifCommands
 from cogs.serverstats import ServerStats
 from cogs.feed import CatFeeder
 from cogs.tts import TTSCog
+from cogs.would_you_rather import WouldYouRather
+from cogs.trivia import Trivia
 
 # Load environment variables
 load_dotenv()
@@ -195,6 +197,7 @@ async def help_command(ctx):
         "Currency": [],
         "Sokoban": [],
         "Plants": [],
+        "Trivia": [],
     }
 
     for command in bot.commands:
@@ -204,7 +207,7 @@ async def help_command(ctx):
             categories["General"].append(command)
         elif command.name in ["play", "stop", "queue", "skip", "theme", "loop"]:
             categories["Music"].append(command)
-        elif command.name in ["catfact", "kittyuh", "unscramble", "type", "dog", "cat", "joke", "rushb", "roulette", "haiku", "throat", "nip", "dmonkey", "dance"]:
+        elif command.name in ["catfact", "kittyuh", "unscramble", "type", "dog", "cat", "joke", "rushb", "roulette", "haiku", "throat", "nip", "dmonkey", "dance", "wyr"]:
             categories["Fun"].append(command)
         elif command.name in ["ask", "image", "roast", "compliment", "feed", "ktts"]:
             categories["AI"].append(command)
@@ -218,6 +221,8 @@ async def help_command(ctx):
             categories["Sokoban"].append(command)
         elif command.name in ["ptalk", "pleaderboard", "pcustomize", "pname", "pstatus", "pfertilize", "psunlight", "pwater", "padopt", "pinfo"]:
             categories["Plants"].append(command)
+        elif command.name in ["trivia"]:
+            categories["Trivia"].append(command)
 
     # Prepare pages (2 categories per page, adjust as needed)
     category_items = list(categories.items())
@@ -464,6 +469,8 @@ async def main():
         await bot.add_cog(ServerStats(bot))
         await bot.add_cog(CatFeeder(bot))
         await bot.add_cog(TTSCog(bot))
+        await bot.add_cog(WouldYouRather(bot))
+        await bot.add_cog(Trivia(bot))
         await bot.start(TOKEN)
 
 if __name__ == "__main__":

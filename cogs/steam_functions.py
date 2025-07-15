@@ -14,7 +14,7 @@ class Steam(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="steamprofile", help="Get Steam profile info using SteamID64 or vanity URL name")
+    @commands.command(name="steamprofile", help="Get Steam profile info using SteamID64 or vanity URL name. Usage: /steamprofile <steamid or vanity>")
     async def steam_profile(self, ctx, *, identifier):
         base_url = "http://api.steampowered.com"
 

@@ -23,7 +23,7 @@ class WeatherCog(commands.Cog):
                     return None
                 return await resp.json()
 
-    @commands.command(name="weather")
+    @commands.command(name="weather", help="Get the current weather for a city. Usage: /weather <city>")
     async def weather(self, ctx, *, city: str):
         """Get the current weather for a city."""
         data = await self.get_weather(city)

@@ -10,7 +10,7 @@ class Haiku(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="haiku")
+    @commands.command(name="haiku", help="Generate a haiku about a topic. Usage: /haiku [topic]")
     async def haiku(self, ctx, *, topic: str = None):
         """Generates a haiku using OpenAI. Optionally takes a topic."""
         try:

@@ -100,7 +100,7 @@ class Sokoban(commands.Cog):
         stats = f"Moves: {game.moves} | Pushes: {game.pushes}"
         return f"{board}\n\n**{stats}**"
 
-    @commands.command(name="sokoban")
+    @commands.command(name="sokoban", help="Start a new Sokoban game. Usage: /sokoban")
     async def start_sokoban(self, ctx):
         """Start a new Sokoban game with random level"""
         level = generate_random_level()
@@ -111,7 +111,7 @@ class Sokoban(commands.Cog):
             f"Use `/move <w/a/s/d>` to play."
         )
 
-    @commands.command(name="move")
+    @commands.command(name="move", help="Move in Sokoban using w/a/s/d. Usage: /move <direction>")
     async def move(self, ctx, direction: str):
         """Move in Sokoban using w/a/s/d"""
         game = self.games.get(ctx.author.id)
@@ -147,7 +147,7 @@ class Sokoban(commands.Cog):
                 f"{self.render_board(game)}"
             )
 
-    @commands.command(name="sokobaninfo", aliases=["sokobanhelp"])
+    @commands.command(name="sokobaninfo", aliases=["sokobanhelp"], help="Show Sokoban instructions. Usage: /sokobaninfo")
     async def sokoban_info(self, ctx):
         """Show Sokoban instructions"""
         embed = discord.Embed(

@@ -7,7 +7,7 @@ class Roulette(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='roulette')
+    @commands.command(name='roulette', help="Play a game of Russian Roulette. Usage: /roulette")
     async def roulette(self, ctx, bet_amount: int = None, bet_color: str = None):
         colors = ['red', 'black', 'green']
         syntax = "`!roulette <amount> <color>` — Example: `!roulette 100 red`"

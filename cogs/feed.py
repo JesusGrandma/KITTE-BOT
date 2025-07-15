@@ -14,7 +14,7 @@ class CatFeeder(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="feed")
+    @commands.command(name="feed", help="Feed the AI cat and get a sassy response. Usage: /feed <item>")
     async def feed(self, ctx, *, item: str = None):
         if not item:
             await ctx.send("😾 You have to tell me what you're feeding me!")

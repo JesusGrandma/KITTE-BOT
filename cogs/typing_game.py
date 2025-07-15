@@ -22,7 +22,7 @@ class TypingGame(commands.Cog):
             "The room clears faster than Dylan's typing when he walks in.",
         ]
 
-    @commands.command(name="type", help="Start the type racing game")
+    @commands.command(name="type", help="Start the type racing game. Usage: /type")
     async def typing_test(self, ctx):
         sentence = random.choice(self.sentences)
         await ctx.send(f"Type the following sentence as fast as you can:\n\n**{sentence}**")
