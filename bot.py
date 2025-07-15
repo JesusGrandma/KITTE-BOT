@@ -10,33 +10,33 @@ import aiohttp
 import math
 
 # Local imports
-from image_gen import generate_image
-from chatgpt_handler import ask_cat_gpt
-from cat_facts import get_random_cat_fact
-from lyrics import Lyrics
-from music import Music
-from reddit_memes import RedditMemes
+from cogs.image_gen import generate_image
+from cogs.chatgpt_handler import ask_cat_gpt
+from cogs.cat_facts import get_random_cat_fact
+from cogs.lyrics import Lyrics
+from cogs.music import Music
+from cogs.reddit_memes import RedditMemes
 from steam_functions import Steam
-from weather import WeatherCog
-from unscramble_game import WordUnscramble
-from typing_game import TypingGame
-from blackjack import Blackjack
-from random_dog import RandomDog
-from random_cat import RandomCat
-from joke import RandomJoke
-from rush_b import RushB
-from roulette import Roulette
-from currency import Currency
-from theme import Theme
-from haiku import Haiku
-from roast import ComplimentRoast
-from last_seen import LastSeen
-from sokoban import Sokoban
-from virtualplant import VirtualPlant
-from gif import GifCommands
-from serverstats import ServerStats
-from feed import CatFeeder
-from tts import TTSCog
+from cogs.weather import WeatherCog
+from cogs.unscramble_game import WordUnscramble
+from cogs.typing_game import TypingGame
+from cogs.blackjack import Blackjack
+from cogs.random_dog import RandomDog
+from cogs.random_cat import RandomCat
+from cogs.joke import RandomJoke
+from cogs.rush_b import RushB
+from cogs.roulette import Roulette
+from cogs.currency import Currency
+from cogs.theme import Theme
+from cogs.haiku import Haiku
+from cogs.roast import ComplimentRoast
+from cogs.last_seen import LastSeen
+from cogs.sokoban import Sokoban
+from cogs.virtualplant import VirtualPlant
+from cogs.gif import GifCommands
+from cogs.serverstats import ServerStats
+from cogs.feed import CatFeeder
+from cogs.tts import TTSCog
 
 # Load environment variables
 load_dotenv()
