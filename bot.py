@@ -39,6 +39,9 @@ from cogs.feed import CatFeeder
 from cogs.tts import TTSCog
 from cogs.would_you_rather import WouldYouRather
 from cogs.trivia import Trivia
+from cogs.define import Define
+from cogs.urban import Urban
+from cogs.connect4 import ConnectFour
 
 # Load environment variables
 load_dotenv()
@@ -471,6 +474,9 @@ async def main():
         await bot.add_cog(TTSCog(bot))
         await bot.add_cog(WouldYouRather(bot))
         await bot.add_cog(Trivia(bot))
+        await bot.add_cog(Define(bot))
+        await bot.add_cog(Urban(bot))
+        await bot.add_cog(ConnectFour(bot))
         await bot.start(TOKEN)
 
 if __name__ == "__main__":
