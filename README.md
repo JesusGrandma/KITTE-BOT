@@ -31,7 +31,8 @@ Create a `.env` file in the root directory:
 ```env
 DISCORD_TOKEN=your_discord_bot_token
 OPENAI_API_KEY=your_openai_api_key
-# Add other API keys as needed (e.g., GENIUS_ACCESS_TOKEN, ELEVENLABS_API_KEY, etc.)
+REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT, GENIUS_ACCESSS_TOKEN, STEAM_API_KEY, WEATHER_API_KEY, LASTFM_API_KEY, and ELEVENLABS_API_KEY are all supported
+# Add other API keys as needed 
 ```
 
 Run the bot:
