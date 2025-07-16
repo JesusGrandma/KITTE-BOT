@@ -22,7 +22,7 @@
 ## Quick Start
 
 ```sh
-git clone <your-repo-url>
+git clone https://github.com/JesusGrandma/KITTE-BOT
 cd KITTE-BOT
 pip install -r requirements.txt
 ```
