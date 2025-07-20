@@ -71,7 +71,7 @@ session = None
 async def on_ready():
     global session
     session = aiohttp.ClientSession()
-    activity = discord.Game(name="Counter Strike 2")  # Replace with your custom message
+    activity = discord.Game(name="PowerWash Simulator")  # Replace with your custom message
     await bot.change_presence(status=discord.Status.online, activity=activity)
     print(f"Bot is online as {bot.user}")
 
