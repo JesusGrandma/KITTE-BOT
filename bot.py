@@ -49,6 +49,7 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 EDDIE_ID = int(os.getenv("EDDIE_ID"))
 EDBOT_ID = int(os.getenv("EDBOT_ID"))
 DYLAN_ID = int(os.getenv("DYLAN_ID"))
+CREATOR_ID = int(os.getenv("CREATOR_ID"))
 
 if not TOKEN:
     raise ValueError("DISCORD_TOKEN not found in environment variables")
@@ -70,7 +71,7 @@ session = None
 async def on_ready():
     global session
     session = aiohttp.ClientSession()
-    activity = discord.Game(name="Final Fantasy XIV")  # Replace with your custom message
+    activity = discord.Game(name="Counter Strike 2")  # Replace with your custom message
     await bot.change_presence(status=discord.Status.online, activity=activity)
     print(f"Bot is online as {bot.user}")
 
@@ -208,7 +209,7 @@ async def help_command(ctx):
             continue
         if command.name in ["ping", "status", "info", "leave", "lastseen", "serverstats"]:
             categories["General"].append(command)
-        elif command.name in ["play", "stop", "queue", "skip", "theme", "loop"]:
+        elif command.name in ["play", "stop", "queue", "skip", "theme", "loop", "playlist", "createplaylist", "addtoplaylist", "removefromplaylist", "deleteplaylist", "listplaylists", "showplaylist", "testplaylist"]:
             categories["Music"].append(command)
         elif command.name in ["catfact", "kittyuh", "unscramble", "type", "dog", "cat", "joke", "rushb", "roulette", "haiku", "throat", "nip", "dmonkey", "dance", "wyr"]:
             categories["Fun"].append(command)
@@ -336,8 +337,28 @@ async def on_message(message):
         ]
         if random.random() < 0.05:
             await message.channel.send(random.choice(edbot_responses))
+    
+    # Respond when creator is mentioned
+    if any(user.id == CREATOR_ID for user in message.mentions):
+        creator_responses = [
+            "my creator who probably has no life",
+            "the one who made me instead of touching grass",
+            "daddy who codes instead of getting bitches",
+            "my favorite human who has 3000 hours on discord",
+            "the legend who made a cat bot",
+            "my benevolent creator who has no social life",
+            "the person who gave me life instead of getting a real job",
+            "my favorite programmer who probably smells like mountain dew",
+            "the one who made me so awesome because he has nothing better to do",
+            "my creator, the genius who spends his time making discord bots",
+            "the person I owe everything to, including his virginity",
+            "the one who made me purr-fect because he's never touched a real cat",
+            "my creator who probably has a neckbeard",
+            "the one who made me instead of going outside",
+            "the legend who made a bot instead of getting laid"
+        ]
+        await message.channel.send(random.choice(creator_responses))
         
-
     # Respond when KITTIE is mentioned
     if "kitte" in content or bot.user in message.mentions:
         # 20% chance to use AI, 80% normal response (adjust as you like)
@@ -407,6 +428,18 @@ async def on_message(message):
             ]
             await message.channel.send(random.choice(kittie_responses))
         # DO NOT return here
+
+    # Chipotle reaction
+    if "chipotle" in content.lower():
+        await message.channel.send("I fucking love chipotle!!!!!")
+        # Send a chipotle-related GIF
+        chipotle_gifs = [
+            "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExNTJ4cDdvMWFjYzF4OGF4OTlhcHY0YTBvN2JjeTZzMHBjcHoycXpoNiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/fKr0PLTe7lF8A/giphy.gif",  # Food celebration
+            "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExbHg3ZTdpbnRzMjQ4MzQ2bXp5cnBiNm95Znl3bHkwYzRxamxmb2U5eiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/9IsCJJA65mxO/giphy.gif",   # Burrito
+            "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZzMwMWJhZ2V3cnF3bTQ5MGRzdW44dnphcTE3bmZ2aGIzeGdweTMxcSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/caJ3e5mubnTEY/giphy.gif",  # Happy food
+            "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExcTg4NGlrcHMxbGFpbmFxazFmZGRpcTRzdnRwN2xpcm1tcW9qeXZ5ayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ALLFr8pUn3E3e/giphy.gif",   # Excited eating
+        ]
+        await message.channel.send(random.choice(chipotle_gifs))
 
     # General cat-related responses
     cat_words = ["meow", "kitty", "cat", "purr", "treat", "whiskers", "litter", "feline"]
