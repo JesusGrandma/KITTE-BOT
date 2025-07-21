@@ -42,6 +42,7 @@ from cogs.trivia import Trivia
 from cogs.define import Define
 from cogs.urban import Urban
 from cogs.connect4 import ConnectFour
+from cogs.epicfree import EpicFree
 
 # Load environment variables
 load_dotenv()
@@ -50,6 +51,7 @@ EDDIE_ID = int(os.getenv("EDDIE_ID"))
 EDBOT_ID = int(os.getenv("EDBOT_ID"))
 DYLAN_ID = int(os.getenv("DYLAN_ID"))
 CREATOR_ID = int(os.getenv("CREATOR_ID"))
+DILLBOT_ID = int(os.getenv("DILLBOT_ID"))
 
 if not TOKEN:
     raise ValueError("DISCORD_TOKEN not found in environment variables")
@@ -186,7 +188,6 @@ async def imagine(ctx, *, prompt):
     except Exception:
         pass
 
-
 # Help Command
 
 @bot.command(name="help", help="Shows a list of available commands")
@@ -215,7 +216,7 @@ async def help_command(ctx):
             categories["Fun"].append(command)
         elif command.name in ["ask", "image", "roast", "compliment", "feed", "ktts"]:
             categories["AI"].append(command)
-        elif command.name in ["weather", "reddit", "steamprofile", "lyrics"]:
+        elif command.name in ["weather", "reddit", "steamprofile", "lyrics", "epicfree"]:
             categories["Utilities"].append(command)
         elif command.name in ["hit", "blackjack", "stand"]:
             categories["Blackjack"].append(command)
@@ -299,7 +300,7 @@ async def on_message(message):
             "destiny 2",
             "how much have you spent on magic",
         ]
-        if random.random() < 0.05:
+        if random.random() < 0.15:
             await message.channel.send(random.choice(eddie_responses))
         
     elif message.author.id == DYLAN_ID: 
@@ -315,9 +316,10 @@ async def on_message(message):
             "blueprints",
             "ultraloooorrd",
             "wanna get married",
-            "i'll buy your car"
+            "i'll buy your car",
+            "wordplay more like no foreplay"
         ]
-        if random.random() < .05:
+        if random.random() < .15:
             await message.channel.send(random.choice(dylan_responses))
 
     # Respond to Edbot
@@ -335,8 +337,26 @@ async def on_message(message):
             "i have 3000 hours on dbd",
             "overwatch 2 more like... i hate myself",
         ]
-        if random.random() < 0.05:
+        if random.random() < 0.15:
             await message.channel.send(random.choice(edbot_responses))
+    
+    # Respond when Dylan is mentioned
+    if any(user.id == DYLAN_ID for user in message.mentions):
+        dylan_mention_responses = [
+            "i love my job",
+            "ive seen you try to setup a tent",
+            "heard you like puking through tables",
+            "blood bowl 2",
+            "i knew you forgot how to turn on your computer",
+            "tell sarah i said hi",
+            "darkrp",
+            "RUSH B CYKA BLYAT",
+            "blueprints",
+            "ultraloooorrd",
+            "wanna get married",
+            "i'll buy your car"
+        ]
+        await message.channel.send(random.choice(dylan_mention_responses))
     
     # Respond when creator is mentioned
     if any(user.id == CREATOR_ID for user in message.mentions):
@@ -362,7 +382,7 @@ async def on_message(message):
     # Respond when KITTIE is mentioned
     if "kitte" in content or bot.user in message.mentions:
         # 20% chance to use AI, 80% normal response (adjust as you like)
-        if random.random() < 0.2:
+        if random.random() < 0.15:
             try:
                 ai_prompt = (
                     "You are a very sassy, witty, and sarcastic cat. "
@@ -441,6 +461,19 @@ async def on_message(message):
         ]
         await message.channel.send(random.choice(chipotle_gifs))
 
+    # Dillbot reaction
+    if any(user.id == DILLBOT_ID for user in message.mentions):
+        await message.channel.send("rip homie dillbot")
+        # Send a RIP-related GIF
+        rip_gifs = [
+            "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYjFxMjM1djNtcHFvdHN3aTY1N2hxMjBzcWJzYnVxd2FhYjAwODdobCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/W0c3xcZ3F1d0EYYb0f/giphy.gif",  # RIP
+            "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExb3B4Y3JoaWxsM29tYzRhbjgyemp5bDU1eXVsdXY2MXhpdGJ4cnJ5ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Ty9Sg8oHghPWg/giphy.gif",   # Sad
+            "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExY2o5ZzBoYzY1dTl5dXR1NHMzam5reHdhaDBpMmJqN3hxYXV5bDgwZCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/VN3dGsdlp9nCPUfe8y/giphy.gif",   # F
+            "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExbGZzc2lmczZ5bDdtOG96ZnduNWI5OG42dnA1eG16Nzhjc2IxdWV2YyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/VsKvIB0zIJoOc/giphy.gif",   # Press F
+            "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmExdGdjM2Y3dGp2ZXNxMm5ib3c5Nzk3cmF2eGRpOHZwMXZyZ3VubCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/5xaOcLCp8sxC25mCwec/giphy.gif"   # Rest in peace
+        ]
+        await message.channel.send(random.choice(rip_gifs))
+
     # General cat-related responses
     cat_words = ["meow", "kitty", "cat", "purr", "treat", "whiskers", "litter", "feline"]
     chance = 0.05  # Default chance to respond
@@ -510,6 +543,7 @@ async def main():
         await bot.add_cog(Define(bot))
         await bot.add_cog(Urban(bot))
         await bot.add_cog(ConnectFour(bot))
+        await bot.add_cog(EpicFree(bot))
         await bot.start(TOKEN)
 
 if __name__ == "__main__":
