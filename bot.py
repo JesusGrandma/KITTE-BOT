@@ -43,6 +43,7 @@ from cogs.define import Define
 from cogs.urban import Urban
 from cogs.connect4 import ConnectFour
 from cogs.epicfree import EpicFree
+from cogs.school import School
 
 # Load environment variables
 load_dotenv()
@@ -300,7 +301,7 @@ async def on_message(message):
             "destiny 2",
             "how much have you spent on magic",
         ]
-        if random.random() < 0.15:
+        if random.random() < 0.05:
             await message.channel.send(random.choice(eddie_responses))
         
     elif message.author.id == DYLAN_ID: 
@@ -319,7 +320,7 @@ async def on_message(message):
             "i'll buy your car",
             "wordplay more like no foreplay"
         ]
-        if random.random() < .15:
+        if random.random() < .05:
             await message.channel.send(random.choice(dylan_responses))
 
     # Respond to Edbot
@@ -337,7 +338,7 @@ async def on_message(message):
             "i have 3000 hours on dbd",
             "overwatch 2 more like... i hate myself",
         ]
-        if random.random() < 0.15:
+        if random.random() < 0.05:
             await message.channel.send(random.choice(edbot_responses))
     
     # Respond when Dylan is mentioned
@@ -382,7 +383,7 @@ async def on_message(message):
     # Respond when KITTIE is mentioned
     if "kitte" in content or bot.user in message.mentions:
         # 20% chance to use AI, 80% normal response (adjust as you like)
-        if random.random() < 0.15:
+        if random.random() < 0.05:
             try:
                 ai_prompt = (
                     "You are a very sassy, witty, and sarcastic cat. "
@@ -478,7 +479,7 @@ async def on_message(message):
     cat_words = ["meow", "kitty", "cat", "purr", "treat", "whiskers", "litter", "feline"]
     chance = 0.05  # Default chance to respond
     if any(word in content for word in cat_words):
-        chance = 0.25  # Higher chance if cat-related words are detected
+        chance = 0.05  # Higher chance if cat-related words are detected
     if random.random() < chance:
         cat_responses = [
             "What do you want, mortal?",
@@ -544,6 +545,7 @@ async def main():
         await bot.add_cog(Urban(bot))
         await bot.add_cog(ConnectFour(bot))
         await bot.add_cog(EpicFree(bot))
+        await bot.add_cog(School(bot))
         await bot.start(TOKEN)
 
 if __name__ == "__main__":
