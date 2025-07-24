@@ -11,20 +11,23 @@ class School(commands.Cog):
             'dylan': date(2025, 8, 20),
             'kayla': date(2025, 8, 21),
             'ben': date(2025, 8, 21),
-            'brittany': date(2025, 8, 21)
+            'brittany': date(2025, 8, 21),
+            'keegan': date(2025, 8, 14) 
         }
         # Fun messages for each teacher
         self.fun_messages = {
-            'dylan': "Dylan, your summer freedom is over. Time to face the horde of students and endless grading once again!",
-            'kayla': "Kayla, the classroom chaos awaits. Your coffee won't save you from the madness this year!",
-            'ben': "Ben, prepare for the relentless barrage of questions and the soul-crushing sound of the school bell!",
-            'brittany': "Brittany, your days of peace are done. Time to wield the power of disappointment and unleash homework upon the masses!"
+            'dylan': "Dylan, hope you enjoyed your last moments of peace—your students are already plotting your downfall.",
+            'kayla': "Kayla, the only thing more chaotic than your classroom will be your caffeine withdrawal.",
+            'ben': "Ben, brace yourself for a tidal wave of homework excuses and existential dread.",
+            'brittany': "Brittany, time to trade your freedom for lesson plans and questionable cafeteria food.",
+            'keegan': "Keegan, summer's over—prepare to dodge spitballs and rethink your life choices!"
         }
         self.user_ids = {
             'dylan': int(os.getenv('DYLAN_ID', 0)),
             'kayla': int(os.getenv('KAYLA_ID', 0)),
             'ben': int(os.getenv('BEN_ID', 0)),
             'brittany': int(os.getenv('BRITTANY_ID', 0)),
+            'keegan': int(os.getenv('KEEGAN_ID', 0)),  # Add Keegan's user ID
         }
         print("[School Cog] Loaded user IDs:", self.user_ids)
 
