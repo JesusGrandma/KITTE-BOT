@@ -44,6 +44,7 @@ from cogs.urban import Urban
 from cogs.connect4 import ConnectFour
 from cogs.epicfree import EpicFree
 from cogs.school import School
+from cogs.argue import ArgueCog
 
 # Load environment variables
 load_dotenv()
@@ -165,14 +166,6 @@ async def cat(ctx):
     await ctx.send(f"{chosen_emoji} Here's a random cat for you!", file=discord.File(file_path))
 
 # AI Commands
-
-@bot.command(name="ask", help="Ask GPT-3.5 a question")
-async def ask(ctx, *, prompt):
-    try:
-        answer = await asyncio.to_thread(ask_cat_gpt, prompt)
-        await ctx.send(answer)
-    except Exception as e:
-        await ctx.send(f"❌ Error: {str(e)}")
 
 @bot.command(name="image", help="Generate an AI image from a prompt")
 async def imagine(ctx, *, prompt):
@@ -546,6 +539,7 @@ async def main():
         await bot.add_cog(ConnectFour(bot))
         await bot.add_cog(EpicFree(bot))
         await bot.add_cog(School(bot))
+        await bot.add_cog(ArgueCog(bot))
         await bot.start(TOKEN)
 
 if __name__ == "__main__":

@@ -22,6 +22,9 @@ class ComplimentRoast(commands.Cog):
 
     @commands.command(help="Roast a server member. Usage: /roast <user>")
     async def roast(self, ctx, member: discord.Member):
+        if member == self.bot.user:
+            await ctx.send("I can't roast myself! Please choose someone else.")
+            return
         prompt = f"Roast for someone named {member.display_name}."
         roast = await self.generate_response(prompt)
         await ctx.send(f"{member.mention} {roast}")
