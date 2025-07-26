@@ -27,7 +27,7 @@ class School(commands.Cog):
             'kayla': int(os.getenv('KAYLA_ID', 0)),
             'ben': int(os.getenv('BEN_ID', 0)),
             'brittany': int(os.getenv('BRITTANY_ID', 0)),
-            'keegan': int(os.getenv('KEEGAN_ID', 0)),  # Add Keegan's user ID
+            'keegan': int(os.getenv('KEEGAN_ID', 0)), 
         }
         print("[School Cog] Loaded user IDs:", self.user_ids)
 

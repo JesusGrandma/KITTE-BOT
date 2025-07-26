@@ -25,6 +25,13 @@ class ComplimentRoast(commands.Cog):
         if member == self.bot.user:
             await ctx.send("I can't roast myself! Please choose someone else.")
             return
+        
+        # Check if the target is the creator
+        creator_id = int(os.getenv("CREATOR_ID", 0))
+        if member.id == creator_id:
+            await ctx.send("I can't roast my creator! That would be disrespectful. 😸")
+            return
+            
         prompt = f"Roast for someone named {member.display_name}."
         roast = await self.generate_response(prompt)
         await ctx.send(f"{member.mention} {roast}")
