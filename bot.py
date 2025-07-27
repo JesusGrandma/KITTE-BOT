@@ -45,6 +45,7 @@ from cogs.connect4 import ConnectFour
 from cogs.epicfree import EpicFree
 from cogs.school import School
 from cogs.argue import ArgueCog
+from cogs.wordle import Wordle
 
 # Load environment variables
 load_dotenv()
@@ -540,6 +541,7 @@ async def main():
         await bot.add_cog(EpicFree(bot))
         await bot.add_cog(School(bot))
         await bot.add_cog(ArgueCog(bot))
+        await bot.add_cog(Wordle(bot))
         await bot.start(TOKEN)
 
 if __name__ == "__main__":
